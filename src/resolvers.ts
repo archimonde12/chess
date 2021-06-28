@@ -31,7 +31,7 @@ export const resolvers = {
     Mutation: {
         chessMove: (parent, args, ctx, info) => {
             const { before, after } = args as { before: { col: number, row: number }, after: { col: number, row: number } }
-            const valueAtBefore = board[(before.col - 1) * 8 + before.row ].value
+            const valueAtBefore = board[before.col  * 8 + before.row ].value
             board[before.col * 8 + before.row ].value = ""
             board[after.col * 8 + after.row ].value = valueAtBefore
             pubsub.publish(BOARD_CHANEL, { boardSub: board });
