@@ -7,6 +7,7 @@ import { initBoard } from "./util"
         await initApollo()
         await connectMongo()
         initBoard()
+        
     }catch(e){
         throw e
     }
