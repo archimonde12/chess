@@ -1,11 +1,16 @@
 import { initApollo } from "./apollo"
+import { connectMongo } from "./mongo"
 import { initBoard } from "./util"
 
 (async () => {
-    try {
+    try{
         await initApollo()
+        await connectMongo()
         initBoard()
-    } catch (e) {
+    }catch(e){
         throw e
     }
 })()
+
+
+
