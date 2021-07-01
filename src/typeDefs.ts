@@ -7,7 +7,7 @@ export const typeDefs = gql`
         row: Int
         value: String
     }
-    
+
     input SquareInput{
         col:Int
         row:Int
@@ -24,8 +24,10 @@ export const typeDefs = gql`
     }
 
     type Mutation{
+        start: String
         chessMove(before:SquareInput!,after:SquareInput!):String
         boardInit(init:[SquareInitInput]):[Square]
+        start:String
     }
 
     type Subscription{
