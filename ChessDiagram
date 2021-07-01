@@ -1,14 +1,14 @@
-<mxfile host="app.diagrams.net" modified="2021-07-01T02:09:15.588Z" agent="5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36" etag="g75HwjfUT69km_r_dhyC" version="14.8.2" type="github" pages="2">
+<mxfile host="app.diagrams.net" modified="2021-07-01T03:24:57.818Z" agent="5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36" etag="PAkyY0yJaCbgycshwjFr" version="14.8.2" type="github" pages="2">
   <diagram id="HrdoS58E5SGNzG8PMqZr" name="Tổng quan">
-    <mxGraphModel dx="2066" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="715" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="yU_QMUonjvs8sbVxhzbb-2" value="&lt;h1&gt;&lt;span&gt;Mục Tiêu&lt;/span&gt;&lt;br&gt;&lt;/h1&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;&lt;span&gt;Mục tiêu 1&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span&gt;Mục tiêu 2&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+        <mxCell id="yU_QMUonjvs8sbVxhzbb-2" value="&lt;h1&gt;&lt;span&gt;Mục Tiêu&lt;/span&gt;&lt;br&gt;&lt;/h1&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;&lt;span&gt;Xây dựng server đánh cờ&lt;/span&gt;&lt;/li&gt;&lt;li&gt;Đối soát dữ liệu&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="60" y="300" width="190" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="yU_QMUonjvs8sbVxhzbb-3" value="&lt;h1&gt;Những điều cần chia sẻ&lt;/h1&gt;&lt;p&gt;&lt;ul&gt;&lt;li&gt;Điều 1&lt;/li&gt;&lt;li&gt;Điều 2&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="70" y="150" width="410" height="120" as="geometry" />
+        <mxCell id="yU_QMUonjvs8sbVxhzbb-3" value="&lt;h1&gt;Những điều cần chia sẻ&lt;/h1&gt;&lt;p&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Tổng quan mini project (PREPARED)&lt;/li&gt;&lt;li&gt;Apollo Server: Schema + Resolvers (query + mutation) (PREPARED)&lt;/li&gt;&lt;li&gt;HTTP request by axios (PREPARED)&lt;/li&gt;&lt;li&gt;Tổng quan database (mongoDB) (PREPARED)&lt;/li&gt;&lt;li&gt;Lưu &amp;amp; đọc log của server vào mongo (PREPARED)&lt;/li&gt;&lt;li&gt;Hoàn thiện game engine&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="150" width="410" height="140" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
