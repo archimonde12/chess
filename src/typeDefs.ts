@@ -26,6 +26,7 @@ export const typeDefs = gql`
     type Mutation{
         chessMove(before:SquareInput!,after:SquareInput!):String
         boardInit(init:[SquareInitInput]):[Square]
+        start:String
     }
 
     type Subscription{

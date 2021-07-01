@@ -1,9 +1,11 @@
 import { initApollo } from "./apollo"
+import { initBoard } from "./util"
 
 (async () => {
-    try{
+    try {
         await initApollo()
-    }catch(e){
+        initBoard()
+    } catch (e) {
         throw e
     }
 })()
