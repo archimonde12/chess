@@ -9,7 +9,8 @@
     "dev": "ts-node src/index.ts",
     "dev:test": "ts-node src/test.ts",
     "dep": "docker-compose -f docker-compose.yml up --build -d",
-    "dep:log": "docker-compose -f docker-compose.yml up --build"
+    "dep:log": "docker-compose -f docker-compose.yml up --build",
+    "dev:watch": "nodemon --watch 'src/**/*.ts' --exec ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
