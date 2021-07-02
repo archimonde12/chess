@@ -12,6 +12,3 @@ import { initBoard } from "./util"
         throw e
     }
 })()
-
-
-
