@@ -7,6 +7,12 @@ export const typeDefs = gql`
     value: String
   }
 
+  type GetBoardResponse{
+    board:[Square]
+    status:String
+    message:String
+  }
+
   input SquareInput {
     col: Int
     row: Int

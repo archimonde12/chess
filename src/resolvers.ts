@@ -31,9 +31,9 @@ type Cell = {
   value: String;
 };
 type locationMove = {
-  before: { col: number, row: number}, 
-  after: { col: number, row: number}
-}
+  before: { col: number; row: number };
+  after: { col: number; row: number };
+};
 let board: Cell[] = (() => {
   let result: Cell[] = [];
   for (let col = 0; col < 8; col++) {
@@ -47,28 +47,26 @@ let board: Cell[] = (() => {
   }
   return result;
 })();
-const checkKingMove_CookIsWin = (col: number, row: number) => {
-  const cook = board.find((el) => el.value === "♜") as Cell;
+const checkKingMove_RookIsWin = (col: number, row: number) => {
+  const rook = board.find((el) => el.value === "♜") as Cell;
   let isCheck = true;
-  if (cook) {
-    if (col === cook.col || row === cook.row) {
-      console.log('Vào mồm xe')
+  if (rook) {
+    if (col === rook.col || row === rook.row) {
       isCheck = false;
       return false;
     }
   }
   return isCheck;
 };
-const checkKingMove_HoureIsWin = (col: number, row: number) => {
-  const houre = board.find((el) => el.value === "♞") as Cell;
+const checkKingMove_KnightIsWin = (col: number, row: number) => {
+  const knight = board.find((el) => el.value === "♞") as Cell;
   let isCheck = true;
-  if (houre) {
+  if (knight) {
     Hxy.forEach((element) => {
-      const u = houre.col + element.x;
-      const v = houre.row + element.y;
+      const u = knight.col + element.x;
+      const v = knight.row + element.y;
       if (u == col && v == row) {
-        console.log('Vào mồm mã')
-        isCheck = false
+        isCheck = false;
         return false;
       }
     });
@@ -81,11 +79,9 @@ const checkKingMove_BishopIsWin = (col: number, row: number) => {
   if (bishop) {
     for (let i = -7; i < 8; i++) {
       if (col + i == bishop.col && row + i == bishop.row) {
-        console.log('Vào mồm tượng')
         isCheck = false;
         return false;
       } else if (col + i == bishop.col && row - i == bishop.row) {
-        console.log('Vào mồm tượng')
         isCheck = false;
         return false;
       }
@@ -93,25 +89,154 @@ const checkKingMove_BishopIsWin = (col: number, row: number) => {
   }
   return isCheck;
 };
-const checkHoureMoveIsInvalid = (location: object) => {
-  const { before, after } = location as locationMove
+const checkKnightMoveIsInvalid = (location: locationMove) => {
+  const { after } = location;
+  const find = board.find(
+    (el) => el.col === after.col && el.row === after.row
+  ) as Cell;
+  if (find.value !== "" && find.value !== "♔") {
+    throw new Error("Mã đen di chuyển không hợp lệ!");
+  }
   return true;
-}
+};
 
-const checkCookMoveIsInvalid = (location: object) => {
-  const { before, after } = location as locationMove
+const checkRookMoveIsInvalid = (location: locationMove) => {
+  const { before, after } = location;
+  const find = board.find(
+    (el) => el.col === after.col && el.row === after.row
+  ) as Cell;
+  var isCheck = true;
+  if (find.value !== "" && find.value !== "♔") {
+    throw new Error("Xe đen di chuyển không hợp lệ!");
+  }
+  var a: number;
+  var n: number;
+  var arr: number[] = [];
+  if (before.col === after.col) {
+    if (after.row > before.row) {
+      a = before.row;
+      n = after.row;
+    } else {
+      a = after.row;
+      n = before.row;
+    }
+  } else if (before.row === after.row) {
+    if (after.col > before.col) {
+      a = before.col;
+      n = after.col;
+    } else {
+      a = after.col;
+      n = before.col;
+    }
+  } else {
+    throw new Error("Xe đen di chuyển không hợp lệ!")
+  }
+  for (let i = a; i <= n; i++) {
+    arr.push(i);
+  }
+  if (before.col === after.col) {
+    arr.every((el) => {
+      if (
+        board.find(
+          (ele) =>
+            ele.col === before.col &&
+            ele.row === el &&
+            ele.value !== "" &&
+            ele.value !== "♔" &&
+            ele.value !== "♜"
+        )
+      ) {
+        console.log("2");
+        throw new Error("Xe đen di chuyển không hợp lệ!");
+      }
+      return true;
+    });
+  } else {
+    arr.every((el) => {
+      if (
+        board.find(
+          (ele) =>
+            ele.row === before.row &&
+            ele.col === el &&
+            ele.value !== "" &&
+            ele.value !== "♔" &&
+            ele.value !== "♜"
+        )
+      ) {
+        console.log("3");
+        throw new Error("Xe đen di chuyển không hợp lệ!");
+      }
+      return true;
+    });
+  }
   return true;
-}
-const checkBishopMoveIsInvalid = (location: object) => {
-  const { before, after } = location as locationMove
+};
+const checkBishopMoveIsInvalid = (location: locationMove) => {
+  const { before, after } = location;
+  //     var isCheck = true;
+  //     chessBlacks.every(el => {
+  //       if(x == el.x && y == el.y) {
+  //         isCheck = false;
+  //         return false;
+  //       }
+  //       return true;
+  //     })
+  //     if(x > bishop.x && y > bishop.y){
+  //       for( i = 1; i<= rand; i++){
+  //         chessBlacks.every(el => {
+  //           if((bishop.x + i) == el.x && (bishop.y + i) == el.y){
+  //             console.log('yes - 1 -' + el.name)
+  //             isCheck = false;
+  //             return false;
+  //           }
+  //           return true;
+  //         })
+  //       }
+  //     }
+  //     if(x < bishop.x && y < bishop.y){
+  //       for( i = 1; i <= rand; i++){
+  //         chessBlacks.every(el => {
+  //           if((bishop.x + i) == el.x && (bishop.y + i) == el.y){
+  //             console.log('yes - 2 -' + el.name)
+  //             isCheck = false;
+  //             return false;
+  //           }
+  //           return true;
+  //         })
+  //       }
+  //     }
+  //     if(x > bishop.x && y < bishop.y){
+  //       for( i = 1; i <= rand; i++){
+  //         chessBlacks.every(el => {
+  //           if((bishop.x + i) == el.x && (bishop.y - i) == el.y){
+  //             console.log('yes - 3 -' + el.name)
+  //             isCheck = false;
+  //             return false;
+  //           }
+  //           return true;
+  //         })
+  //       }
+  //     }
+  //     if(x < bishop.x && y > bishop.y){
+  //       for( i = 1; i <= rand; i++){
+  //         chessBlacks.every(el => {
+  //           if((bishop.x - i) == el.x && (bishop.y + i) == el.y){
+  //             console.log('yes - 4 -' + el.name)
+  //             isCheck = false;
+  //             return false;
+  //           }
+  //           return true;
+  //         })
+  //       }
+  //     }
   return true;
-}
+};
 const checkKingWin = (col: number, row: number) => {
   for (let i = 0; i < Kxy.length; i++) {
     let u = col + Kxy[i].x;
     let v = row + Kxy[i].y;
-    const find = board.find((el) => el.col === u && el.row === v) as Cell
-    if(u < 8 && u >= 0 && v < 8 && v >= 0) {
+    const find = board.find((el) => el.col === u && el.row === v) as Cell;
+    if (u < 8 && u >= 0 && v < 8 && v >= 0) {
       if (find.value != "") {
         return {
           newCol: u,
@@ -138,7 +263,15 @@ const kingMove = (col: number, row: number) => {
     const newCol: number = col + Kxy[rand].x;
     const newRow: number = row + Kxy[rand].y;
     arrRands.splice(index, 1);
-    if (newCol >= 0 && newCol < 8 && newRow >= 0 && newRow < 8 && checkKingMove_CookIsWin(newCol, newRow) && checkKingMove_HoureIsWin(newCol, newRow) && checkKingMove_BishopIsWin(newCol, newRow)) {
+    if (
+      newCol >= 0 &&
+      newCol < 8 &&
+      newRow >= 0 &&
+      newRow < 8 &&
+      checkKingMove_RookIsWin(newCol, newRow) &&
+      checkKingMove_KnightIsWin(newCol, newRow) &&
+      checkKingMove_BishopIsWin(newCol, newRow)
+    ) {
       isCheck = true;
       return {
         newCol,
@@ -146,6 +279,7 @@ const kingMove = (col: number, row: number) => {
       };
     }
   }
+  console.log("Hết đường đi!");
   throw new Error("Hết đường đi!");
 };
 const moveChess = (value: locationMove) => {
@@ -153,7 +287,7 @@ const moveChess = (value: locationMove) => {
   board[value.before.col * 8 + value.before.row].value = "";
   board[value.after.col * 8 + value.after.row].value = valueAtBefore;
   pubsub.publish(BOARD_CHANEL, { boardSub: board });
-}
+};
 export const resolvers = {
   Query: {
     boardGet: () => {
@@ -161,20 +295,29 @@ export const resolvers = {
     },
   },
   Mutation: {
-    chessMove: async (parent, args, ctx, info) => {
+    chessMove: async (
+      parent: object,
+      args: object,
+      ctx: object,
+      info: object
+    ) => {
       try {
+        // Request từ đối thủ
         const { before, after } = args as locationMove;
-        console.log(before, after);
+        // Lưu lại tọa độ di chuyển của đối thủ
         await requestLogs.insertOne({ content: "công move", before, after });
+        console.log(before, after);
+        // Kiểm tra có quân cờ hay không
         const isChessMan = board.find(
           (el) => el.col === before.col && el.row === before.row
         ) as Cell;
         switch (isChessMan.value) {
+          // Kiểm tra nước đi có phù hợp không
           case "♜":
-            checkCookMoveIsInvalid({ before, after });
+            checkRookMoveIsInvalid({ before, after });
             break;
           case "♞":
-            checkHoureMoveIsInvalid({ before, after });
+            checkKnightMoveIsInvalid({ before, after });
             break;
           case "♝":
             checkBishopMoveIsInvalid({ before, after });
@@ -183,54 +326,49 @@ export const resolvers = {
             console.log("Không có quân cờ ở vị trí xuất phát");
             throw new Error("Không có quân cờ ở vị trí xuất phát");
         }
-        moveChess({before, after })
-        //Lưu request đến vào database
-        //Kiểm tra xem có quân cờ không
-        //Kiểm tra nước đi có phù hợp không
+        moveChess({ before, after });
         //Xử lý nước đi tiếp theo của mình=> gửi nước đi tiếp theo cho server đối thủ => Lưu log cái request gửi đi
         //Trả kết quả
-        // await requestLogs.insertOne({content: 'công move'});
-        // console.log("cong move")
-        const { col, row } = board.find((el) => el.value === "♔") as Cell;
-        const { newCol, newRow } = kingMove(col, row) as {
+        const locationRook = board.find((el) => el.value === "♔") as Cell;
+        if (!locationRook) {
+          console.log("You Lose!");
+          return "White lose!";
+        }
+        const { newCol, newRow } = kingMove(
+          locationRook.col,
+          locationRook.row
+        ) as {
           newCol: number;
           newRow: number;
         };
-        // const isCheckClearChess = board.every(el => {
-        //   if(el.value !== '' && el.col === col && el.row === row) {
-        //     return false;
-        //   }
-        //   return true;
-        // });
-        // if (isCheckClearChess) {
-        //   console.log('King chiến thắng')
-        //   return 'King chiến thắng';
-        // }
-        setTimeout(async () =>{
-          await requestLogs.insertOne({ content: "Tuân move" , before:  { col: col, row: row}, after: { col: newCol, row: newRow } });
-          moveChess({before: {col: col, row: row}, after: {col: newCol, row: newRow}})
+        setTimeout(async () => {
+          await requestLogs.insertOne({
+            content: "Tuân move",
+            before: { col: locationRook.col, row: locationRook.row },
+            after: { col: newCol, row: newRow },
+          });
+          moveChess({
+            before: { col: locationRook.col, row: locationRook.row },
+            after: { col: newCol, row: newRow },
+          });
           // Gửi request chessMove ở sever của công
           sendRequestToServer({
-            before: { col: col, row: row },
+            before: { col: locationRook.col, row: locationRook.row },
             after: { col: newCol, row: newRow },
-          }).then(response => {
-            console.log(response)
-          }).catch(err => {
-            console.log(err)
-            throw err;
-          })
-        },1000)
+          }).then((response) => {
+            console.log(response);
+          });
+        }, 500);
         return "OK";
       } catch (error) {
-        console.log(error)
+        console.log(error);
         throw error;
       }
-      
     },
     start: async () => {
       try {
         const { col, row } = board.find((el) => el.value === "♔") as Cell;
-        
+
         const { newCol, newRow } = kingMove(col, row) as {
           newCol: number;
           newRow: number;
@@ -255,7 +393,7 @@ export const resolvers = {
         throw error;
       }
     },
-    boardInit: (parent, args, ctx, info) => {
+    boardInit: (parent: object, args: object, ctx: object, info: object) => {
       const { init } = args as {
         init: { col: number; row: number; value: String }[];
       };
