@@ -9,8 +9,8 @@ export const typeDefs = gql`
 
   type GetBoardResponse{
     board:[Square]
-    status:String
-    message:String
+    status:Int
+    isWin:String
   }
 
   input SquareInput {
@@ -26,7 +26,7 @@ export const typeDefs = gql`
 
   type Query {
     boardGet: [Square]
-  
+    getBoard: [GetBoardResponse]
   }
 
   type Mutation {

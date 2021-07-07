@@ -51,7 +51,7 @@ const checkKingMove_RookIsWin = (col: number, row: number) => {
   const rook = board.find((el) => el.value === "♜") as Cell;
   let isCheck = true;
   if (rook) {
-    if (col === rook.col || row === rook.row) {
+    if ((col === rook.col && row !== rook.row) || (row === rook.row && col !== rook.col)) {
       isCheck = false;
       return false;
     }
@@ -78,10 +78,10 @@ const checkKingMove_BishopIsWin = (col: number, row: number) => {
   let isCheck = true;
   if (bishop) {
     for (let i = -7; i < 8; i++) {
-      if (col + i == bishop.col && row + i == bishop.row) {
+      if (col + i == bishop.col && row + i == bishop.row && i != 0) {
         isCheck = false;
         return false;
-      } else if (col + i == bishop.col && row - i == bishop.row) {
+      } else if (col + i == bishop.col && row - i == bishop.row && i != 0) {
         isCheck = false;
         return false;
       }
@@ -90,16 +90,20 @@ const checkKingMove_BishopIsWin = (col: number, row: number) => {
   return isCheck;
 };
 const checkKnightMoveIsInvalid = (location: locationMove) => {
-  const { after } = location;
+  const { before, after } = location;
   const find = board.find(
     (el) => el.col === after.col && el.row === after.row
   ) as Cell;
   if (find.value !== "" && find.value !== "♔") {
     throw new Error("Mã đen di chuyển không hợp lệ!");
   }
-  return true;
+  for(let knight of Hxy) {
+    if(before.col + knight.x === after.col && before.row + knight.y === after.row) {
+      return true;
+    }
+  }
+  throw new Error('Mã đen di chuyển không hợp lệ!');
 };
-
 const checkRookMoveIsInvalid = (location: locationMove) => {
   const { before, after } = location;
   const find = board.find(
@@ -129,7 +133,7 @@ const checkRookMoveIsInvalid = (location: locationMove) => {
       n = before.col;
     }
   } else {
-    throw new Error("Xe đen di chuyển không hợp lệ!")
+    throw new Error("Xe đen di chuyển không hợp lệ!");
   }
   for (let i = a; i <= n; i++) {
     arr.push(i);
@@ -146,7 +150,6 @@ const checkRookMoveIsInvalid = (location: locationMove) => {
             ele.value !== "♜"
         )
       ) {
-        console.log("2");
         throw new Error("Xe đen di chuyển không hợp lệ!");
       }
       return true;
@@ -163,7 +166,6 @@ const checkRookMoveIsInvalid = (location: locationMove) => {
             ele.value !== "♜"
         )
       ) {
-        console.log("3");
         throw new Error("Xe đen di chuyển không hợp lệ!");
       }
       return true;
@@ -173,70 +175,88 @@ const checkRookMoveIsInvalid = (location: locationMove) => {
 };
 const checkBishopMoveIsInvalid = (location: locationMove) => {
   const { before, after } = location;
-  //     var isCheck = true;
-  //     chessBlacks.every(el => {
-  //       if(x == el.x && y == el.y) {
-  //         isCheck = false;
-  //         return false;
-  //       }
-  //       return true;
-  //     })
-  //     if(x > bishop.x && y > bishop.y){
-  //       for( i = 1; i<= rand; i++){
-  //         chessBlacks.every(el => {
-  //           if((bishop.x + i) == el.x && (bishop.y + i) == el.y){
-  //             console.log('yes - 1 -' + el.name)
-  //             isCheck = false;
-  //             return false;
-  //           }
-  //           return true;
-  //         })
-  //       }
-  //     }
-  //     if(x < bishop.x && y < bishop.y){
-  //       for( i = 1; i <= rand; i++){
-  //         chessBlacks.every(el => {
-  //           if((bishop.x + i) == el.x && (bishop.y + i) == el.y){
-  //             console.log('yes - 2 -' + el.name)
-  //             isCheck = false;
-  //             return false;
-  //           }
-  //           return true;
-  //         })
-  //       }
-  //     }
-  //     if(x > bishop.x && y < bishop.y){
-  //       for( i = 1; i <= rand; i++){
-  //         chessBlacks.every(el => {
-  //           if((bishop.x + i) == el.x && (bishop.y - i) == el.y){
-  //             console.log('yes - 3 -' + el.name)
-  //             isCheck = false;
-  //             return false;
-  //           }
-  //           return true;
-  //         })
-  //       }
-  //     }
-  //     if(x < bishop.x && y > bishop.y){
-  //       for( i = 1; i <= rand; i++){
-  //         chessBlacks.every(el => {
-  //           if((bishop.x - i) == el.x && (bishop.y + i) == el.y){
-  //             console.log('yes - 4 -' + el.name)
-  //             isCheck = false;
-  //             return false;
-  //           }
-  //           return true;
-  //         })
-  //       }
-  //     }
+  const find = board.find(
+    (el) => el.col === after.col && el.row === after.row
+  ) as Cell;
+  if (find.value !== "" && find.value !== "♔") {
+    throw new Error("Tượng đen di chuyển không hợp lệ!");
+  }
+  var range: number;
+  range =
+    before.col > after.col ? before.col - after.col : after.col - before.col;
+  if (after.col > before.col && after.row > before.row) {
+    for (let i = 1; i <= range; i++) {
+      if (
+        board.find(
+          (el) =>
+            el.col === before.col + i &&
+            el.row === before.row + i &&
+            el.value !== "" &&
+            el.value !== "♔"
+        )
+      ) {
+        throw new Error("Tượng đen di chuyển không hợp lệ!");
+      }
+    }
+  }
+  else if (after.col < before.col && after.row < before.row) {
+    for (let i = 1; i <= range; i++) {
+      if (
+        board.find(
+          (el) =>
+            el.col === before.col - i &&
+            el.row === before.row - i &&
+            el.value !== "" &&
+            el.value !== "♔"
+        )
+      ) {
+        throw new Error("Tượng đen di chuyển không hợp lệ!");
+      }
+    }
+  }
+  else if (after.col > before.col && after.row < before.row) {
+    for (let i = 1; i <= range; i++) {
+      if (
+        board.find(
+          (el) =>
+            el.col === before.col + i &&
+            el.row === before.row - i &&
+            el.value !== "" &&
+            el.value !== "♔"
+        )
+      ) {
+        throw new Error("Tượng đen di chuyển không hợp lệ!");
+      }
+    }
+  }
+  else if (after.col < before.col && after.row > before.row) {
+    for (let i = 1; i <= range; i++) {
+      if (
+        board.find(
+          (el) =>
+            el.col === before.col - i &&
+            el.row === before.row + i &&
+            el.value !== "" &&
+            el.value !== "♔"
+        )
+      ) {
+        throw new Error("Tượng đen di chuyển không hợp lệ!");
+      }
+    }
+  } else {
+    throw new Error("Tượng đen di chuyển không hợp lệ!");
+  }
   return true;
 };
 const checkKingWin = (col: number, row: number) => {
-  for (let i = 0; i < Kxy.length; i++) {
-    let u = col + Kxy[i].x;
-    let v = row + Kxy[i].y;
+  for (let knight of Kxy) {
+    let u = col + knight.x;
+    let v = row + knight.y;
     const find = board.find((el) => el.col === u && el.row === v) as Cell;
-    if (u < 8 && u >= 0 && v < 8 && v >= 0) {
+    if (u < 8 && u >= 0 && v < 8 && v >= 0 && 
+      checkKingMove_RookIsWin(u, v) &&
+      checkKingMove_KnightIsWin(u, v) &&
+      checkKingMove_BishopIsWin(u, v)) {
       if (find.value != "") {
         return {
           newCol: u,
@@ -257,7 +277,7 @@ const kingMove = (col: number, row: number) => {
     };
     return { newCol, newRow };
   }
-  while (!isCheck || arrRands.length < 1) {
+  while (!isCheck || arrRands.length > 0) {
     const index = Math.floor(Math.random() * arrRands.length);
     const rand = arrRands[index];
     const newCol: number = col + Kxy[rand].x;
@@ -293,6 +313,13 @@ export const resolvers = {
     boardGet: () => {
       return board;
     },
+    getBoard: () => {
+      return {
+        board: board,
+        status: 200,
+        isWin: 'Black Win!'
+      }
+    }
   },
   Mutation: {
     chessMove: async (
@@ -302,10 +329,10 @@ export const resolvers = {
       info: object
     ) => {
       try {
-        // Request từ đối thủ
+        // Request
         const { before, after } = args as locationMove;
         // Lưu lại tọa độ di chuyển của đối thủ
-        await requestLogs.insertOne({ content: "công move", before, after });
+        await requestLogs.insertOne({ content: "công move", before, after});
         console.log(before, after);
         // Kiểm tra có quân cờ hay không
         const isChessMan = board.find(
@@ -323,7 +350,6 @@ export const resolvers = {
             checkBishopMoveIsInvalid({ before, after });
             break;
           default:
-            console.log("Không có quân cờ ở vị trí xuất phát");
             throw new Error("Không có quân cờ ở vị trí xuất phát");
         }
         moveChess({ before, after });
@@ -356,7 +382,7 @@ export const resolvers = {
             before: { col: locationRook.col, row: locationRook.row },
             after: { col: newCol, row: newRow },
           }).then((response) => {
-            console.log(response);
+            console.log(response.data);
           });
         }, 500);
         return "OK";
