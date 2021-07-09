@@ -1,4 +1,5 @@
 import { PubSub, withFilter } from "apollo-server";
+import { errorConsoleLog } from "./color-log";
 import { requestLogs } from "./mongo";
 import { sendRequestToServer } from "./util";
 export const pubsub = new PubSub();
@@ -25,6 +26,8 @@ const Hxy = [
   { x: 2, y: 1 },
 ];
 const arrRand = [0, 1, 2, 3, 4, 5, 6, 7];
+const iconChessBlacks = ['♚', '♜', '♞', '♝'];
+const iconChessWhites = ['♔', '♖', '♘', '♗'];
 type Cell = {
   col: number;
   row: number;
@@ -34,6 +37,10 @@ type locationMove = {
   before: { col: number; row: number };
   after: { col: number; row: number };
 };
+type newLocation = {
+  newCol: number;
+  newRow: number;
+}
 let board: Cell[] = (() => {
   let result: Cell[] = [];
   for (let col = 0; col < 8; col++) {
@@ -47,6 +54,17 @@ let board: Cell[] = (() => {
   }
   return result;
 })();
+
+const getChessMan = (chess: Array<String>) : Cell[] => {
+  const result: Array<Cell> = [];
+  chess.map(element => {
+    if(board.find(el => el.value === element) as Cell) {
+      result.push(board.find(el => el.value === element) as Cell);
+    }
+  })
+  return result;
+};
+var isWin = '';
 const checkKingMove_RookIsWin = (col: number, row: number) => {
   const rook = board.find((el) => el.value === "♜") as Cell;
   let isCheck = true;
@@ -91,9 +109,7 @@ const checkKingMove_BishopIsWin = (col: number, row: number) => {
 };
 const checkKnightMoveIsInvalid = (location: locationMove) => {
   const { before, after } = location;
-  const find = board.find(
-    (el) => el.col === after.col && el.row === after.row
-  ) as Cell;
+  const find = board.find((el) => el.col === after.col && el.row === after.row) as Cell;
   if (find.value !== "" && find.value !== "♔") {
     throw new Error("Mã đen di chuyển không hợp lệ!");
   }
@@ -167,6 +183,79 @@ const checkRookMoveIsInvalid = (location: locationMove) => {
         )
       ) {
         throw new Error("Xe đen di chuyển không hợp lệ!");
+      }
+      return true;
+    });
+  }
+  return true;
+};
+const rookMoveIsInvalid = (location: locationMove) => {
+  const { before, after } = location;
+  const find = board.find(
+    (el) => el.col === after.col && el.row === after.row
+  ) as Cell;
+  let isCheck = true;
+  if (find.value !== "" && find.value !== "♔") {
+    isCheck = false;
+    return false;
+  }
+  var a: number;
+  var n: number;
+  var arr: number[] = [];
+  if (before.col === after.col) {
+    if (after.row > before.row) {
+      a = before.row;
+      n = after.row;
+    } else {
+      a = after.row;
+      n = before.row;
+    }
+  } else if (before.row === after.row) {
+    if (after.col > before.col) {
+      a = before.col;
+      n = after.col;
+    } else {
+      a = after.col;
+      n = before.col;
+    }
+  } else {
+    isCheck = false;
+    return false;
+  }
+  for (let i = a; i <= n; i++) {
+    arr.push(i);
+  }
+  if (before.col === after.col) {
+    arr.every((el) => {
+      if (
+        board.find(
+          (ele) =>
+            ele.col === before.col &&
+            ele.row === el &&
+            ele.value !== "" &&
+            ele.value !== "♔" &&
+            ele.value !== "♜"
+        )
+      ) {
+        isCheck = false;
+        return false;
+      }
+      return true;
+    });
+  } else {
+    arr.every((el) => {
+      if (
+        board.find(
+          (ele) =>
+            ele.row === before.row &&
+            ele.col === el &&
+            ele.value !== "" &&
+            ele.value !== "♔" &&
+            ele.value !== "♜"
+        )
+      ) {
+        isCheck = false;
+        return false;
       }
       return true;
     });
@@ -248,6 +337,9 @@ const checkBishopMoveIsInvalid = (location: locationMove) => {
   }
   return true;
 };
+const checkKingMoveIsInvalid = (location: locationMove) => {
+
+};
 const checkKingWin = (col: number, row: number) => {
   for (let knight of Kxy) {
     let u = col + knight.x;
@@ -271,10 +363,7 @@ const kingMove = (col: number, row: number) => {
   let arrRands = arrRand.concat();
   let isCheck = false;
   if (checkKingWin(col, row)) {
-    const { newCol, newRow } = checkKingWin(col, row) as {
-      newCol: number;
-      newRow: number;
-    };
+    const { newCol, newRow } = checkKingWin(col, row) as newLocation;
     return { newCol, newRow };
   }
   while (!isCheck || arrRands.length > 0) {
@@ -300,14 +389,39 @@ const kingMove = (col: number, row: number) => {
     }
   }
   console.log("Hết đường đi!");
-  throw new Error("Hết đường đi!");
+  isWin = 'Black win!';
+  return {
+    chessMove: 'OK',
+    messager: 'Black win!'
+  };
 };
-const moveChess = (value: locationMove) => {
+const rookMove = (col: number, row: number) => {
+  var rand = Math.floor(Math.random() * 15) - 7;
+  var local = Math.floor(Math.random() * 2);
+  let newCol = col;
+  let newRow = row;
+  local === 1 ? (newCol = rand + col) : (newRow = rand + row);
+  if (
+    newCol >= 0 &&
+    newCol < 8 &&
+    newRow >= 0 &&
+    newRow < 8 &&
+    rookMoveIsInvalid({
+      before: { col, row },
+      after: { col: newCol, row: newRow },
+    })
+  ) {
+    return { newCol, newRow };
+  }
+  return rookMove(col, row);
+};
+const changeLocationChess = (value: locationMove) => {
   const valueAtBefore = board[value.before.col * 8 + value.before.row].value;
   board[value.before.col * 8 + value.before.row].value = "";
   board[value.after.col * 8 + value.after.row].value = valueAtBefore;
-  pubsub.publish(BOARD_CHANEL, { boardSub: board });
+  // pubsub.publish(BOARD_CHANEL, { boardSub: board });
 };
+
 export const resolvers = {
   Query: {
     boardGet: () => {
@@ -317,23 +431,18 @@ export const resolvers = {
       return {
         board: board,
         status: 200,
-        isWin: 'Black Win!'
+        isWin,
       }
     }
   },
   Mutation: {
-    chessMove: async (
-      parent: object,
-      args: object,
-      ctx: object,
-      info: object
-    ) => {
+    chessMove: async (parent,args: locationMove,ctx,info) => {
       try {
         // Request
-        const { before, after } = args as locationMove;
+        const { before, after } = args;
+        console.log(before, after);
         // Lưu lại tọa độ di chuyển của đối thủ
         await requestLogs.insertOne({ content: "công move", before, after});
-        console.log(before, after);
         // Kiểm tra có quân cờ hay không
         const isChessMan = board.find(
           (el) => el.col === before.col && el.row === before.row
@@ -349,77 +458,126 @@ export const resolvers = {
           case "♝":
             checkBishopMoveIsInvalid({ before, after });
             break;
+          case "♚":
+            checkKingMoveIsInvalid({ before, after });
+            break;
           default:
             throw new Error("Không có quân cờ ở vị trí xuất phát");
         }
-        moveChess({ before, after });
+        changeLocationChess({ before, after });
+        
         //Xử lý nước đi tiếp theo của mình=> gửi nước đi tiếp theo cho server đối thủ => Lưu log cái request gửi đi
         //Trả kết quả
-        const locationRook = board.find((el) => el.value === "♔") as Cell;
-        if (!locationRook) {
+        const locationKing = board.find((el) => el.value === "♔") as Cell;
+        if (!locationKing) {
           console.log("You Lose!");
-          return "White lose!";
-        }
-        const { newCol, newRow } = kingMove(
-          locationRook.col,
-          locationRook.row
-        ) as {
-          newCol: number;
-          newRow: number;
-        };
+          isWin = 'Black win!'
+          return {
+            chessMove: 'OK',
+            messager: 'Black win!'
+          };
+        } 
+        
+        var { newCol, newRow } = kingMove(
+          locationKing.col,
+          locationKing.row) as {newCol: number; newRow: number;};
+        // else {
+        //   chessWhites.push(locationKing);
+        // }
+        // const locationRook = board.find((el) => el.value === "♖") as Cell;
+        // if (locationRook) {
+        //   chessWhites.push(locationRook);
+        // }
+        // const rand = chessWhites[Math.floor(Math.random() * chessWhites.length)];
+        // switch (rand.value) {
+        //   case '♔':
+        //     var { newCol, newRow } = kingMove(
+        //       rand.col,
+        //       rand.row) as {newCol: number; newRow: number;};
+        //     break;
+        //   case '♖':
+        //     var { newCol, newRow } = rookMove(
+        //       rand.col,
+        //       rand.row) as {newCol: number; newRow: number;};
+        //     break;
+        // }
         setTimeout(async () => {
           await requestLogs.insertOne({
             content: "Tuân move",
-            before: { col: locationRook.col, row: locationRook.row },
+            before: { col: locationKing.col, row: locationKing.row },
             after: { col: newCol, row: newRow },
           });
-          moveChess({
-            before: { col: locationRook.col, row: locationRook.row },
-            after: { col: newCol, row: newRow },
-          });
+          console.log('request: ', locationKing.col, locationKing.row, newCol, newRow )
           // Gửi request chessMove ở sever của công
           sendRequestToServer({
-            before: { col: locationRook.col, row: locationRook.row },
+            before: { col: locationKing.col, row: locationKing.row },
             after: { col: newCol, row: newRow },
-          }).then((response) => {
-            console.log(response.data);
+          }).then(async (response) => {
+            console.log(response)
+            if(response.errors){
+              requestLogs.insertOne({
+                error: response[0].errors.message,
+                board
+              });
+              throw response.errors;
+            }
+            if(response.data.chessMove === 'White win!'){
+              isWin = response.data.chessMove;
+              requestLogs.insertOne({ status: response.data.chessMove, board });
+            }
+            changeLocationChess({
+              before: { col: locationKing.col, row: locationKing.row },
+              after: { col: newCol, row: newRow },
+            });
           });
         }, 500);
         return "OK";
       } catch (error) {
-        console.log(error);
+        requestLogs.insertOne({ status: 500, error: error.message, board});
+        console.log(error.message);
         throw error;
       }
     },
     start: async () => {
-      try {
-        const { col, row } = board.find((el) => el.value === "♔") as Cell;
+      // try {
+      //   const { col, row } = board.find((el) => el.value === "♔") as Cell;
 
-        const { newCol, newRow } = kingMove(col, row) as {
-          newCol: number;
-          newRow: number;
-        };
-        const valueAtBefore = board[col * 8 + row].value;
-        board[col * 8 + row].value = "";
-        board[newCol * 8 + newRow].value = valueAtBefore;
-        pubsub.publish(BOARD_CHANEL, { boardSub: board });
-        await requestLogs.insertOne({
-          content: "Tuân move",
-          before: { col: col, row: row },
-          after: { col: newCol, row: newRow },
-        });
-        // Gửi request
-        sendRequestToServer({
-          before: { col: col, row: row },
-          after: { col: newCol, row: newRow },
-        });
-        return "OK";
-      } catch (error) {
-        console.log(error);
-        throw error;
-      }
+      //   const { newCol, newRow } = kingMove(col, row) as {
+      //     newCol: number;
+      //     newRow: number;
+      //   };
+      //   // Gửi request
+      //   await requestLogs.insertOne({
+      //     content: "Tuân move",
+      //     before: { col: col, row: row },
+      //     after: { col: newCol, row: newRow },
+      //   });
+      //   sendRequestToServer({
+      //     before: { col: col, row: row },
+      //     after: { col: newCol, row: newRow },
+      //   }).then(async(response) => {
+      //     if(response.errors){
+      //       requestLogs.insertOne({
+      //         Error: response[0].errors,
+      //         board
+      //       });
+      //       throw response.errors;
+      //     }
+      //     if(response.data.chessMove === 'OK'){
+      //       changeLocationChess({
+      //         before: { col: col, row: row },
+      //         after: { col: newCol, row: newRow },
+      //       });
+      //     }
+      //   });
+      //   return "OK";
+      // } catch (error) {
+      //   console.log(error);
+      //   requestLogs.insertOne(error);
+      //   throw error;
+      // }
     },
-    boardInit: (parent: object, args: object, ctx: object, info: object) => {
+    boardInit: (parent, args, ctx, info) => {
       const { init } = args as {
         init: { col: number; row: number; value: String }[];
       };
@@ -441,6 +599,10 @@ export const resolvers = {
       pubsub.publish(BOARD_CHANEL, { boardSub: board });
       return board;
     },
+    newGame: () => {
+      isWin = '';
+      return 'OK';
+    }
   },
   Subscription: {
     boardSub: {

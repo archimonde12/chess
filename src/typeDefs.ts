@@ -9,7 +9,7 @@ export const typeDefs = gql`
 
   type GetBoardResponse{
     board:[Square]
-    status:Int
+    status:String
     isWin:String
   }
 
@@ -26,11 +26,12 @@ export const typeDefs = gql`
 
   type Query {
     boardGet: [Square]
-    getBoard: [GetBoardResponse]
+    getBoard: GetBoardResponse
   }
 
   type Mutation {
     start: String
+    newGame: String
     chessMove(before: SquareInput!, after: SquareInput!): String
     boardInit(init: [SquareInitInput]): [Square]
   }
