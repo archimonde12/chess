@@ -11,6 +11,7 @@ import {
 } from "../resolvers";
 
 
+const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
   const { before, after } = location;
   const allys = getChessMan(iconChessWhites).concat();
   for (let ally of allys) {
