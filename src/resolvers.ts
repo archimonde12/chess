@@ -1,4 +1,5 @@
 import { PubSub, withFilter } from "apollo-server";
+import { checkMove_BishopIsWin } from "./chess/checkMove_BishopIsWin";
 import { errorConsoleLog } from "./color-log";
 import { requestLogs } from "./mongo";
 import { sendRequestToServer } from "./util";
@@ -28,7 +29,7 @@ const Hxy = [
 const arrRand = [0, 1, 2, 3, 4, 5, 6, 7];
 const iconChessBlacks = ['♚', '♜', '♞', '♝'];
 const iconChessWhites = ['♔', '♖', '♘', '♗'];
-type Cell = {
+export type Cell = {
   col: number;
   row: number;
   value: String;
@@ -41,7 +42,7 @@ type newLocation = {
   newCol: number;
   newRow: number;
 }
-let board: Cell[] = (() => {
+export let board: Cell[] = (() => {
   let result: Cell[] = [];
   for (let col = 0; col < 8; col++) {
     for (let row = 0; row < 8; row++) {
@@ -91,53 +92,37 @@ const checkMove_KnightIsWin = (col: number, row: number) => {
   }
   return isCheck;
 };
-const checkMove_BishopIsWin = (col: number, row: number) => {
-  const bishop = board.find((el) => el.value === "♝") as Cell;
-  let isCheck = true;
-  if (bishop) {
-    for (let i = -7; i < 8; i++) {
-      if (col + i == bishop.col && row + i == bishop.row && i != 0) {
-        isCheck = false;
-        return false;
-      } else if (col + i == bishop.col && row - i == bishop.row && i != 0) {
-        isCheck = false;
-        return false;
-      }
-    }
-  }
-  return isCheck;
-};
+
 const checkMove_KingIsWin = (col: number, row: number) => {
   const king = board.find((el) => el.value === "♚") as Cell;
-  let isCheck = true;
   if (king) {
-    Hxy.forEach((element) => {
+    for(let element of Kxy) {
       const u = king.col + element.x;
       const v = king.row + element.y;
-      if (u == col && v == row) {
-        isCheck = false;
+      if (u === col && v === row) {
         return false;
       }
-    });
+    };
   }
-  return isCheck;
+  return true;
 };
-const checkKnightMoveIsInvalid = (location: locationMove) => {
-  const { before, after } = location;
-  const find = board.find((el) => el.col === after.col && el.row === after.row) as Cell;
-  if (find.value !== "" && find.value !== "♚" && find.value !== "♜" && find.value !== "♞" && find.value !== "♝") {
-    return false;
+const checkKnightMoveIsInvalid = (location: locationMove) : boolean=> {
+  const { after } = location;
+  const allys = getChessMan(iconChessWhites).concat();
+  for(let ally of allys){
+    if(ally.col === after.col && ally.row === after.row) {
+      return false;
+    }
   }
   return true;
 };
 const checkRookMoveIsInvalid = (location: locationMove) => {
   const { before, after } = location;
-  const find = board.find(
-    (el) => el.col === after.col && el.row === after.row
-  ) as Cell;
-  var isCheck = true;
-  if (find.value !== "" && find.value !== "♔") {
-    throw new Error("Xe đen di chuyển không hợp lệ!");
+  const allys = getChessMan(iconChessWhites).concat();
+  for(let ally of allys){
+    if(ally.col === after.col && ally.row === after.row) {
+      return false;
+    }
   }
   var a: number;
   var n: number;
@@ -201,12 +186,11 @@ const checkRookMoveIsInvalid = (location: locationMove) => {
 };
 const rookMoveIsInvalid = (location: locationMove): boolean=> {
   const { before, after } = location;
-  const find = board.find(
-    (el) => el.col === after.col && el.row === after.row
-  ) as Cell;
-  if (find.value !== "" && find.value !== "♚" && find.value !== "♜" && find.value !== "♞" && find.value !== "♝") {
-    console.log('vào 1')
-    return false;
+  const allys = getChessMan(iconChessWhites).concat();
+  for(let ally of allys){
+    if(ally.col === after.col && ally.row === after.row) {
+      return false;
+    }
   }
   var a: number;
   var n: number;
@@ -228,10 +212,9 @@ const rookMoveIsInvalid = (location: locationMove): boolean=> {
       n = before.col;
     }
   } else {
-    console.log('vào 2')
     return false;
   }
-  for (let i = a; i <= n; i++) {
+  for (let i = a + 1; i < n; i++) {
     arr.push(i);
   }
   if (before.col === after.col) {
@@ -241,15 +224,9 @@ const rookMoveIsInvalid = (location: locationMove): boolean=> {
           (ele) =>
             ele.col === before.col &&
             ele.row === el &&
-            ele.value !== "" &&
-            ele.value !== "♚" &&
-            ele.value !== "♜" &&
-            ele.value !== "♞" &&
-            ele.value !== "♝" &&
-            ele.value !== "♖"
+            ele.value !== ""
         )
       ) {
-        console.log('vào 3')
         return false;
       }
     };
@@ -260,15 +237,9 @@ const rookMoveIsInvalid = (location: locationMove): boolean=> {
           (ele) =>
             ele.row === before.row &&
             ele.col === el &&
-            ele.value !== "" &&
-            ele.value !== "♚" &&
-            ele.value !== "♜" &&
-            ele.value !== "♞" &&
-            ele.value !== "♝" &&
-            ele.value !== "♖"
+            ele.value !== ""
         )
       ) {
-        console.log('4')
         return false;
       }
     };
@@ -277,17 +248,17 @@ const rookMoveIsInvalid = (location: locationMove): boolean=> {
 };
 const checkBishopMoveIsInvalid = (location: locationMove) : boolean => {
   const { before, after } = location;
-  const find = board.find(
-    (el) => el.col === after.col && el.row === after.row
-  ) as Cell;
-  if (find.value !== "" && find.value !== "♚" && find.value !== "♜" && find.value !== "♞" && find.value !== "♝") {
-    return false;
+  const allys = getChessMan(iconChessWhites).concat();
+  for(let ally of allys){
+    if(ally.col === after.col && ally.row === after.row) {
+      return false;
+    }
   }
   var range: number;
   range =
     before.col > after.col ? before.col - after.col : after.col - before.col;
   if (after.col > before.col && after.row > before.row) {
-    for (let i = 1; i <= range; i++) {
+    for (let i = 1; i < range; i++) {
       if (
         board.find(
           (el) =>
@@ -305,7 +276,7 @@ const checkBishopMoveIsInvalid = (location: locationMove) : boolean => {
     }
   }
   else if (after.col < before.col && after.row < before.row) {
-    for (let i = 1; i <= range; i++) {
+    for (let i = 1; i < range; i++) {
       if (
         board.find(
           (el) =>
@@ -323,7 +294,7 @@ const checkBishopMoveIsInvalid = (location: locationMove) : boolean => {
     }
   }
   else if (after.col > before.col && after.row < before.row) {
-    for (let i = 1; i <= range; i++) {
+    for (let i = 1; i < range; i++) {
       if (
         board.find(
           (el) =>
@@ -341,7 +312,7 @@ const checkBishopMoveIsInvalid = (location: locationMove) : boolean => {
     }
   }
   else if (after.col < before.col && after.row > before.row) {
-    for (let i = 1; i <= range; i++) {
+    for (let i = 1; i < range; i++) {
       if (
         board.find(
           (el) =>
@@ -363,32 +334,95 @@ const checkBishopMoveIsInvalid = (location: locationMove) : boolean => {
   return true;
 };
 const checkKingMoveIsInvalid = (location: locationMove) : boolean => {
-  const { before, after } = location;
-  const find = board.find((el) => el.col === after.col && el.row === after.row) as Cell;
-  if (find.value !== "" && find.value !== "♚" && find.value !== "♜" && find.value !== "♞" && find.value !== "♝") {
-    return false;
+  const { after } = location;
+  const allys = getChessMan(iconChessWhites).concat();
+  for(let ally of allys){
+    if(ally.col === after.col && ally.row === after.row) {
+      return false;
+    }
   }
-  for(let king of Kxy) {
-    if(before.col + king.x === after.col && before.row + king.y === after.row) {
-      return true;
+  return true;
+};
+const checkKingWin = (ChessBlacks: Array<Cell>) => {
+  const king = board.find((el) => el.value === "♔") as Cell;
+  for (let locationKing of Kxy) {
+    for(let ChessBlack of ChessBlacks) {
+      let u = king.col + locationKing.x;
+      let v = king.row + locationKing.y;
+      if (u === ChessBlack.col && v === ChessBlack.row) {
+        return {
+          col: king.col,
+          row: king.row,
+          newCol: ChessBlack.col,
+          newRow: ChessBlack.row
+        }
+      }
     }
   }
   return false;
 };
-const checkKingWin = (col: number, row: number) => {
-  for (let knight of Kxy) {
-    let u = col + knight.x;
-    let v = row + knight.y;
-    const find = board.find((el) => el.col === u && el.row === v) as Cell;
-    if (u < 8 && u >= 0 && v < 8 && v >= 0 && 
-      checkMove_RookIsWin(u, v) &&
-      checkMove_KnightIsWin(u, v) &&
-      checkMove_BishopIsWin(u, v)) {
-      if (find.value != "") {
-        return {
-          newCol: u,
-          newRow: v,
-        };
+const checkRookWin = (ChessBlacks: Array<Cell>) => {
+  const rook = board.find((el) => el.value === "♖") as Cell;
+  if(rook) {
+    for(let chessBlack of ChessBlacks) {
+      if (chessBlack.col === rook.col || chessBlack.row === rook.row) {
+        if(rookMoveIsInvalid({before: { col: rook.col, row: rook.row}, after: { col: chessBlack.col, row: chessBlack.row}})){
+          return { 
+            col: rook.col,
+            row: rook.row,
+            newCol: chessBlack.col,
+            newRow: chessBlack.row
+          }
+        }
+      }
+    }
+  }
+  return false;
+};
+const checkKnightWin = (ChessBlacks: Array<Cell>) => {
+  const knight = board.find((el) => el.value === "♘") as Cell;
+  if (knight) {
+    for(let locationKnight of Hxy) {
+      for (let chessBlack of ChessBlacks) {
+        var u = knight.col + locationKnight.x;
+        var v = knight.row + locationKnight.y;
+        if (u === chessBlack.col && v === chessBlack.row) {
+          return {
+            col: knight.col,
+            row: knight.row,
+            newCol: chessBlack.col,
+            newRow: chessBlack.row
+          }
+        }
+      }
+    }
+  }
+  return false;
+};
+const checkBishopWin = (ChessBlacks: Array<Cell>) => {
+  const bishop = board.find((el) => el.value === "♗") as Cell;
+  if (bishop) {
+    for (let i = -7; i < 8; i++) {
+      for(let chessBlack of ChessBlacks){
+        if (bishop.col + i === chessBlack.col && bishop.row + i === chessBlack.row) {
+          if(checkBishopMoveIsInvalid({before: { col: bishop.col, row: bishop.row}, after: { col: chessBlack.col, row: chessBlack.row}})){
+            return {
+              col: bishop.col,
+              row: bishop.row,
+              newCol: chessBlack.col,
+              newRow: chessBlack.row
+            }
+          }
+        } else if (bishop.col + i === chessBlack.col && bishop.row - i === chessBlack.row) {
+          if(checkBishopMoveIsInvalid({before: { col: bishop.col, row: bishop.row}, after: { col: chessBlack.col, row: chessBlack.row}})){
+            return {
+              col: bishop.col,
+              row: bishop.row,
+              newCol: chessBlack.col,
+              newRow: chessBlack.row
+            }
+          }
+        }
       }
     }
   }
@@ -397,10 +431,6 @@ const checkKingWin = (col: number, row: number) => {
 const kingMove = (col: number, row: number) => {
   let arrRands = arrRand.concat();
   let isCheck = false;
-  if (checkKingWin(col, row)) {
-    const { newCol, newRow } = checkKingWin(col, row) as newLocation;
-    return { newCol, newRow };
-  }
   while (!isCheck || arrRands.length > 0) {
     const index = Math.floor(Math.random() * arrRands.length);
     const rand = arrRands[index];
@@ -415,7 +445,8 @@ const kingMove = (col: number, row: number) => {
       checkMove_RookIsWin(newCol, newRow) &&
       checkMove_KnightIsWin(newCol, newRow) &&
       checkMove_BishopIsWin(newCol, newRow) &&
-      checkMove_KingIsWin(newCol, newRow)
+      checkMove_KingIsWin(newCol, newRow) &&
+      checkKingMoveIsInvalid({before: { col, row }, after: { col: newCol, row: newRow },})
     ) {
       isCheck = true;
       return {
@@ -434,7 +465,6 @@ const rookMove = (col: number, row: number) => {
   let newCol = col;
   let newRow = row;
   local === 1 ? (newCol = rand + col) : (newRow = rand + row);
-  console.log('xxxx: ', newCol, newRow)
   if (newCol >= 0 && newCol < 8 && newRow >= 0 && newRow < 8) {
     if(
     checkMove_RookIsWin(newCol, newRow) &&
@@ -453,7 +483,6 @@ const knightMove = (col: number, row: number) => {
   while (!isCheck && arrRands.length > 0) {
     const index = Math.floor(Math.random() * arrRands.length);
     const rand = arrRands[index];
-    console.log('rand knight:', rand);
     arrRands.splice(index, 1);
     let newCol = col + Hxy[rand].x;
     var newRow = row + Hxy[rand].y;
@@ -473,7 +502,7 @@ const knightMove = (col: number, row: number) => {
     }
   }
   console.log('Mã hết đường đi!')
-  return 'Hết đường đi'!
+  return 'Do not way'
 };
 const bishopMove = (col: number, row: number) => {
   let select = Math.floor(Math.random() * 4);
@@ -524,6 +553,50 @@ const changeLocationChess = (value: locationMove) => {
   board[value.after.col * 8 + value.after.row].value = valueAtBefore;
   // pubsub.publish(BOARD_CHANEL, { boardSub: board });
 };
+const chooseChessPieces = (chessWhites: Array<Cell>, chessBlacks: Array<Cell>) => {
+  type newLoca = {
+    col: number,
+    row: number,
+    newCol: number,
+    newRow: number,
+  };
+  if (checkKingWin(chessBlacks)) {
+    var { col, row, newCol, newRow } = checkKingWin(chessBlacks) as newLoca;
+  } else if (checkRookWin(chessBlacks)) {
+    var { col, row, newCol, newRow } = checkRookWin(chessBlacks) as newLoca;
+  } else if (checkKnightWin(chessBlacks)) {
+    var { col, row, newCol, newRow } = checkKnightWin(chessBlacks) as newLoca;
+  } else if (checkBishopWin(chessBlacks)) {
+    var { col, row, newCol, newRow } = checkBishopWin(chessBlacks) as newLoca;
+  } else {
+    const rand = chessWhites[Math.floor(Math.random() * chessWhites.length)];
+    var col = rand.col;
+    var row = rand.row;
+    switch (rand.value) {
+      case "♖":
+        var { newCol, newRow } = rookMove(rand.col, rand.row) as newLocation;
+        break;
+      case "♔":
+        var { newCol, newRow } = kingMove(rand.col, rand.row) as newLocation;
+        break;
+      case "♘":
+        var { newCol, newRow } = knightMove(rand.col, rand.row) as newLocation;
+        break;
+      case "♗":
+        var { newCol, newRow } = bishopMove(rand.col, rand.row) as newLocation;
+        break;
+    }
+    if(!newCol && !newRow && chessWhites.length > 1) {
+      chooseChessPieces(chessWhites, chessBlacks);
+    }
+  }
+  return {
+    col,
+    row,
+    newCol,
+    newRow
+  }
+}
 export const resolvers = {
   Query: {
     boardGet: () => {
@@ -552,37 +625,12 @@ export const resolvers = {
         if(isChessMan.value === '') {
           throw new Error("Không có quân cờ ở vị trí xuất phát");
         }
-        // switch (isChessMan.value) {
-        //   // Kiểm tra nước đi có phù hợp không
-        //   case "♜":
-        //     // checkRookMoveIsInvalid({ before, after });
-        //     break;
-        //   case "♞":
-        //     if (!checkKnightMoveIsInvalid({ before, after })) {
-        //       throw new Error("Mã đen di chuyển không hợp lệ!");
-        //     };
-        //     break;
-        //   case "♝":
-        //     if(!checkBishopMoveIsInvalid({ before, after })) {
-        //       throw new Error("Tượng đen di chuyển không hợp lệ!")
-        //     };
-        //     break;
-        //   case "♚":
-        //     if(!checkKingMoveIsInvalid({ before, after })) {
-        //       throw new Error("King đen di chuyển không hợp lệ!")
-        //     };
-        //     break;
-        //   default:
-        //     throw new Error("Không có quân cờ ở vị trí xuất phát");
-        // }
         changeLocationChess({ before, after });
-        
         //Xử lý nước đi tiếp theo của mình=> gửi nước đi tiếp theo cho server đối thủ => Lưu log cái request gửi đi
         //Trả kết quả
         const locationKing = board.find((el) => el.value === "♔") as Cell;
-        const chessWhites = getChessMan(['♖', '♘', '♗']).concat(); 
-        const rand = chessWhites[Math.floor(Math.random() * chessWhites.length)];
-        console.log(rand)
+        const chessWhites = getChessMan(iconChessWhites).concat(); 
+        const chessBlacks = getChessMan(iconChessBlacks).concat();
         if (!locationKing) {
           console.log("You Lose!");
           isWin = 'Black win!'
@@ -596,21 +644,7 @@ export const resolvers = {
           var col = locationKing.col;
           var row = locationKing.row;
         } else {
-          var col = rand.col;
-          var row = rand.row;
-          switch (rand.value) {
-            case "♖":
-              var { newCol, newRow } = rookMove(rand.col, rand.row) as newLocation;
-              break;
-            case "♘":
-              var { newCol, newRow } = knightMove(rand.col, rand.row) as newLocation;
-              break;
-            case "♗":
-              var { newCol, newRow } = bishopMove(rand.col, rand.row) as newLocation;
-              break;
-            default:
-              throw new Error("Không có quân cờ ở vị trí xuất phát");
-          }
+          var { col, row, newCol, newRow } = chooseChessPieces(chessWhites, chessBlacks);
         }
         setTimeout(async () => {
           await requestLogs.insertOne({
@@ -652,8 +686,8 @@ export const resolvers = {
     start: async () => {
       try {
         const locationKing = board.find((el) => el.value === "♔") as Cell;
-        const chessWhites = getChessMan(['♖', '♘', '♗']).concat(); 
-        const rand = chessWhites[Math.floor(Math.random() * chessWhites.length)];
+        const chessWhites = getChessMan(['♖', '♘', '♗']).concat();
+        const chessBlacks = getChessMan(iconChessBlacks).concat();
         if (!locationKing) {
           console.log("You Lose!");
           isWin = 'Black win!'
@@ -667,21 +701,7 @@ export const resolvers = {
           var col = locationKing.col;
           var row = locationKing.row;
         } else {
-          var col = rand.col;
-          var row = rand.row;
-          switch (rand.value) {
-            case "♖":
-              var { newCol, newRow } = rookMove(rand.col, rand.row) as newLocation;
-              break;
-            case "♘":
-              var { newCol, newRow } = knightMove(rand.col, rand.row) as newLocation;
-              break;
-            case "♗":
-              var { newCol, newRow } = bishopMove(rand.col, rand.row) as newLocation;
-              break;
-            default:
-              throw new Error("Không có quân cờ ở vị trí xuất phát");
-          }
+          var { col, row, newCol, newRow } = chooseChessPieces(chessWhites, chessBlacks);
         }
         // Gửi request
         await requestLogs.insertOne({
