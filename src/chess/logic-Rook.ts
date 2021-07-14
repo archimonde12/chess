@@ -1,26 +1,27 @@
 import {
   board,
-  Cell,
   checkMove_BishopIsWin,
   checkMove_KingIsWin,
   checkMove_KnightIsWin,
   checkMove_RookIsWin,
   getChessMan,
   iconChessWhites,
-  locationMove,
 } from "../resolvers";
+import { Cell, locationMove } from "./type";
 
 export const rookMoveIsInvalid = (location: locationMove): boolean => {
   const { before, after } = location;
+  console.log('x', before, after);
   const allys = getChessMan(iconChessWhites).concat();
   for (let ally of allys) {
     if (ally.col === after.col && ally.row === after.row) {
       return false;
     }
   }
-  var a: number;
-  var n: number;
-  var arr: number[] = [];
+  let a: number;
+  let n: number;
+  let arr: Array<number> = [];
+  console.log('arr', arr)
   if (before.col === after.col) {
     if (after.row > before.row) {
       a = before.row;
@@ -40,14 +41,16 @@ export const rookMoveIsInvalid = (location: locationMove): boolean => {
   } else {
     return false;
   }
-  for (let i = a + 1; i < n; i++) {
+  
+  for (let i = a+1 ; i < n; i++) {
     arr.push(i);
   }
+  
   if (before.col === after.col) {
     for (let el of arr) {
       if (
         board.find(
-          (ele) => ele.col === before.col && ele.row === el && ele.value !== ""
+          (ele) => ele.col === before.col && ele.row === el && ele.value !== "" && ele.value !== '♖'
         )
       ) {
         return false;
@@ -57,7 +60,7 @@ export const rookMoveIsInvalid = (location: locationMove): boolean => {
     for (let el of arr) {
       if (
         board.find(
-          (ele) => ele.row === before.row && ele.col === el && ele.value !== ""
+          (ele) => ele.row === before.row && ele.col === el && ele.value !== "" && ele.value !== '♖'
         )
       ) {
         return false;
@@ -94,6 +97,10 @@ export const checkRookWin = (ChessBlacks: Array<Cell>) => {
     for (let chessBlack of ChessBlacks) {
       if (chessBlack.col === rook.col || chessBlack.row === rook.row) {
         if (
+          checkMove_RookIsWin(chessBlack.col, chessBlack.row) &&
+          checkMove_KnightIsWin(chessBlack.col, chessBlack.row) &&
+          checkMove_BishopIsWin(chessBlack.col, chessBlack.row) &&
+          checkMove_KingIsWin(chessBlack.col, chessBlack.row) &&
           rookMoveIsInvalid({
             before: { col: rook.col, row: rook.row },
             after: { col: chessBlack.col, row: chessBlack.row },

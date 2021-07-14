@@ -1,15 +1,14 @@
 import {
   arrRand,
   board,
-  Cell,
   checkMove_BishopIsWin,
   checkMove_KingIsWin,
   checkMove_KnightIsWin,
   checkMove_RookIsWin,
   getChessMan,
   iconChessWhites,
-  locationMove,
 } from "../resolvers";
+import { Cell, locationMove } from "./type";
 
 export const Kxy = [
   { x: 0, y: -1 },
@@ -72,12 +71,19 @@ export const checkKingWin = (ChessBlacks: Array<Cell>) => {
       let u = king.col + locationKing.x;
       let v = king.row + locationKing.y;
       if (u === ChessBlack.col && v === ChessBlack.row) {
-        return {
-          col: king.col,
-          row: king.row,
-          newCol: ChessBlack.col,
-          newRow: ChessBlack.row,
-        };
+        if(
+          checkMove_RookIsWin(ChessBlack.col, ChessBlack.row) &&
+          checkMove_KnightIsWin(ChessBlack.col, ChessBlack.row) &&
+          checkMove_BishopIsWin(ChessBlack.col, ChessBlack.row) &&
+          checkMove_KingIsWin(ChessBlack.col, ChessBlack.row)
+        ) {
+          return {
+            col: king.col,
+            row: king.row,
+            newCol: ChessBlack.col,
+            newRow: ChessBlack.row,
+          };
+        }
       }
     }
   }

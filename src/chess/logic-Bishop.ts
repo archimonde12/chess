@@ -1,17 +1,16 @@
 import {
   board,
-  Cell,
   checkMove_BishopIsWin,
   checkMove_KingIsWin,
   checkMove_KnightIsWin,
   checkMove_RookIsWin,
   getChessMan,
   iconChessWhites,
-  locationMove,
 } from "../resolvers";
+import { Cell, locationMove } from "./type";
 
 
-const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
+export const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
   const { before, after } = location;
   const allys = getChessMan(iconChessWhites).concat();
   for (let ally of allys) {
@@ -29,11 +28,7 @@ const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
           (el) =>
             el.col === before.col + i &&
             el.row === before.row + i &&
-            el.value !== "" &&
-            el.value !== "♚" &&
-            el.value !== "♜" &&
-            el.value !== "♞" &&
-            el.value !== "♝"
+            el.value !== ""
         )
       ) {
         return false;
@@ -46,11 +41,7 @@ const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
           (el) =>
             el.col === before.col - i &&
             el.row === before.row - i &&
-            el.value !== "" &&
-            el.value !== "♚" &&
-            el.value !== "♜" &&
-            el.value !== "♞" &&
-            el.value !== "♝"
+            el.value !== ""
         )
       ) {
         return false;
@@ -63,11 +54,7 @@ const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
           (el) =>
             el.col === before.col + i &&
             el.row === before.row - i &&
-            el.value !== "" &&
-            el.value !== "♚" &&
-            el.value !== "♜" &&
-            el.value !== "♞" &&
-            el.value !== "♝"
+            el.value !== ""
         )
       ) {
         return false;
@@ -80,11 +67,7 @@ const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
           (el) =>
             el.col === before.col - i &&
             el.row === before.row + i &&
-            el.value !== "" &&
-            el.value !== "♚" &&
-            el.value !== "♜" &&
-            el.value !== "♞" &&
-            el.value !== "♝"
+            el.value !== ""
         )
       ) {
         return false;
@@ -122,6 +105,10 @@ export const checkBishopWin = (ChessBlacks: Array<Cell>) => {
           bishop.row - i === chessBlack.row
         ) {
           if (
+            checkMove_RookIsWin(chessBlack.col, chessBlack.row) &&
+            checkMove_KnightIsWin(chessBlack.col, chessBlack.row) &&
+            checkMove_BishopIsWin(chessBlack.col, chessBlack.row) &&
+            checkMove_KingIsWin(chessBlack.col, chessBlack.row) &&
             checkBishopMoveIsInvalid({
               before: { col: bishop.col, row: bishop.row },
               after: { col: chessBlack.col, row: chessBlack.row },

@@ -1,30 +1,18 @@
-import { PubSub, withFilter } from "apollo-server";
-import { bishopMove, checkBishopWin } from "./chess/logic-Bishop";
-import { checkKingWin, kingMove, Kxy } from "./chess/logic-King";
-import { checkKnightWin, Hxy, knightMove } from "./chess/logic-Knight";
-import { checkRookWin, rookMove } from "./chess/logic-Rook";
-import { errorConsoleLog } from "./color-log";
+import { PubSub } from "apollo-server";
+import { changeLocationChess, handlingMove } from "./chess/handlingMove";
+import { checkBishopMoveIsInvalid } from "./chess/logic-Bishop";
+import { Kxy } from "./chess/logic-King";
+import { Hxy } from "./chess/logic-Knight";
+import { rookMoveIsInvalid } from "./chess/logic-Rook";
+import { Cell, locationMove } from "./chess/type";
 import { requestLogs } from "./mongo";
-import { sendRequestToServer } from "./util";
 export const pubsub = new PubSub();
 export const BOARD_CHANEL = "UPDATED_BOARD";
 
 export const arrRand = [0, 1, 2, 3, 4, 5, 6, 7];
 export const iconChessBlacks = ['♚', '♜', '♞', '♝'];
 export const iconChessWhites = ['♔', '♖', '♘', '♗'];
-export type Cell = {
-  col: number;
-  row: number;
-  value: String;
-};
-export type locationMove = {
-  before: { col: number; row: number };
-  after: { col: number; row: number };
-};
-export type newLocation = {
-  newCol: number;
-  newRow: number;
-}
+
 export var isWin = '';
 export let board: Cell[] = (() => {
   let result: Cell[] = [];
@@ -50,32 +38,41 @@ export const getChessMan = (chess: Array<String>) : Cell[] => {
   return result;
 };
 
-export const checkMove_RookIsWin = (col: number, row: number) => {
+export const checkMove_RookIsWin = (col: number, row: number) : boolean => {
   const rook = board.find((el) => el.value === "♜") as Cell;
-  let isCheck = true;
   if (rook) {
     if ((col === rook.col && row !== rook.row) || (row === rook.row && col !== rook.col)) {
-      isCheck = false;
-      return false;
-    }
-  }
-  return isCheck;
-};
-export const checkMove_BishopIsWin = (col: number, row: number) => {
-  const bishop = board.find((el) => el.value === "♝") as Cell;
-  let isCheck = true;
-  if (bishop) {
-    for (let i = -7; i < 8; i++) {
-      if (col + i == bishop.col && row + i == bishop.row && i != 0) {
-        isCheck = false;
-        return false;
-      } else if (col + i == bishop.col && row - i == bishop.row && i != 0) {
-        isCheck = false;
+      if (
+        rookMoveIsInvalid({
+          before: { col: rook.col, row: rook.row },
+          after: { col, row },
+        })
+      ) {
         return false;
       }
     }
   }
-  return isCheck;
+  return true;
+};
+export const checkMove_BishopIsWin = (col: number, row: number) : boolean => {
+  const bishop = board.find((el) => el.value === "♝") as Cell;
+  if (bishop) {
+    for (let i = -7; i < 8; i++) {
+      if (col + i == bishop.col && row + i == bishop.row && i != 0) {
+        if (
+          checkBishopMoveIsInvalid({
+            before: { col: bishop.col, row: bishop.row },
+            after: { col, row },
+          })
+        ){
+          return false;
+        }
+      } else if (col + i == bishop.col && row - i == bishop.row && i != 0) {
+        return false;
+      }
+    }
+  }
+  return true;
 };
 export const checkMove_KnightIsWin = (col: number, row: number) => {
   const knight = board.find((el) => el.value === "♞") as Cell;
@@ -105,56 +102,7 @@ export const checkMove_KingIsWin = (col: number, row: number) => {
   }
   return true;
 };
-const changeLocationChess = (value: locationMove) => {
-  const valueAtBefore = board[value.before.col * 8 + value.before.row].value;
-  board[value.before.col * 8 + value.before.row].value = "";
-  board[value.after.col * 8 + value.after.row].value = valueAtBefore;
-  // pubsub.publish(BOARD_CHANEL, { boardSub: board });
-};
-const chooseChessPieces = (chessWhites: Array<Cell>, chessBlacks: Array<Cell>) => {
-  type newLoca = {
-    col: number,
-    row: number,
-    newCol: number,
-    newRow: number,
-  };
-  if (checkKingWin(chessBlacks)) {
-    var { col, row, newCol, newRow } = checkKingWin(chessBlacks) as newLoca;
-  } else if (checkRookWin(chessBlacks)) {
-    var { col, row, newCol, newRow } = checkRookWin(chessBlacks) as newLoca;
-  } else if (checkKnightWin(chessBlacks)) {
-    var { col, row, newCol, newRow } = checkKnightWin(chessBlacks) as newLoca;
-  } else if (checkBishopWin(chessBlacks)) {
-    var { col, row, newCol, newRow } = checkBishopWin(chessBlacks) as newLoca;
-  } else {
-    const rand = chessWhites[Math.floor(Math.random() * chessWhites.length)];
-    var col = rand.col;
-    var row = rand.row;
-    switch (rand.value) {
-      case "♖":
-        var { newCol, newRow } = rookMove(rand.col, rand.row) as newLocation;
-        break;
-      case "♔":
-        var { newCol, newRow } = kingMove(rand.col, rand.row) as newLocation;
-        break;
-      case "♘":
-        var { newCol, newRow } = knightMove(rand.col, rand.row) as newLocation;
-        break;
-      case "♗":
-        var { newCol, newRow } = bishopMove(rand.col, rand.row) as newLocation;
-        break;
-    }
-    if(!newCol && !newRow && chessWhites.length > 1) {
-      chooseChessPieces(chessWhites, chessBlacks);
-    }
-  }
-  return {
-    col,
-    row,
-    newCol,
-    newRow
-  }
-}
+
 export const resolvers = {
   Query: {
     boardGet: () => {
@@ -175,7 +123,7 @@ export const resolvers = {
         const { before, after } = args;
         console.log(before, after);
         // Lưu lại tọa độ di chuyển của đối thủ
-        await requestLogs.insertOne({ content: "công move", before, after});
+        await requestLogs.insertOne({ content: "Black move", before, after});
         // Kiểm tra có quân cờ hay không
         const isChessMan = board.find(
           (el) => el.col === before.col && el.row === before.row
@@ -186,54 +134,9 @@ export const resolvers = {
         changeLocationChess({ before, after });
         //Xử lý nước đi tiếp theo của mình=> gửi nước đi tiếp theo cho server đối thủ => Lưu log cái request gửi đi
         //Trả kết quả
-        const locationKing = board.find((el) => el.value === "♔") as Cell;
-        const chessWhites = getChessMan(iconChessWhites).concat(); 
-        const chessBlacks = getChessMan(iconChessBlacks).concat();
-        if (!locationKing) {
-          console.log("You Lose!");
-          isWin = 'Black win!'
-          return 'Black win!'
-        }
-        if (!checkMove_RookIsWin(locationKing.col, locationKing.row) ||
-            !checkMove_KnightIsWin(locationKing.col, locationKing.row) || 
-            !checkMove_BishopIsWin(locationKing.col, locationKing.row) ||
-            chessWhites.length < 1) {
-          var { newCol, newRow } = kingMove(locationKing.col, locationKing.row) as newLocation;
-          var col = locationKing.col;
-          var row = locationKing.row;
-        } else {
-          var { col, row, newCol, newRow } = chooseChessPieces(chessWhites, chessBlacks);
-        }
-        setTimeout(async () => {
-          await requestLogs.insertOne({
-            content: "White move",
-            before: { col, row },
-            after: { col: newCol, row: newRow },
-          });
-          console.log('request: ', col, row, newCol, newRow )
-          // Gửi request chessMove ở sever của công
-          sendRequestToServer({
-            before: { col: col, row: row },
-            after: { col: newCol, row: newRow },
-          }).then(async (response) => {
-            console.log(response)
-            if(response.errors){
-              // requestLogs.insertOne({
-              //   error: response.errors,
-              //   board
-              // });
-              throw response.errors;
-            }
-            if(response.data.chessMove === 'White win!'){
-              isWin = response.data.chessMove;
-              requestLogs.insertOne({ status: response.data.chessMove, board });
-            }
-            changeLocationChess({
-              before: { col, row },
-              after: { col: newCol, row: newRow },
-            });
-          });
-        }, 1000);
+        setTimeout(() => {
+          handlingMove();
+        }, 1000)
         return "OK";
       } catch (error) {
         requestLogs.insertOne({ status: 500, error: error.message, board});
@@ -243,49 +146,7 @@ export const resolvers = {
     },
     start: async () => {
       try {
-        const locationKing = board.find((el) => el.value === "♔") as Cell;
-        const chessWhites = getChessMan(['♖', '♘', '♗']).concat();
-        const chessBlacks = getChessMan(iconChessBlacks).concat();
-        if (!locationKing) {
-          console.log("You Lose!");
-          isWin = 'Black win!'
-          return 'Black win!';
-        }
-        if (!checkMove_RookIsWin(locationKing.col, locationKing.row) ||
-            !checkMove_KnightIsWin(locationKing.col, locationKing.row) || 
-            !checkMove_BishopIsWin(locationKing.col, locationKing.row) ||
-            chessWhites.length < 1) {
-          var { newCol, newRow } = kingMove(locationKing.col, locationKing.row) as newLocation;
-          var col = locationKing.col;
-          var row = locationKing.row;
-        } else {
-          var { col, row, newCol, newRow } = chooseChessPieces(chessWhites, chessBlacks);
-        }
-        // Gửi request
-        await requestLogs.insertOne({
-          content: "White move",
-          before: { col, row },
-          after: { col: newCol, row: newRow },
-        });
-        console.log('request: ', col, row, newCol, newRow )
-        sendRequestToServer({
-          before: { col, row },
-          after: { col: newCol, row: newRow },
-        }).then(async(response) => {
-          if(response.errors){
-            // requestLogs.insertOne({
-            //   Error: response.errors,
-            //   board
-            // });
-            throw response.errors;
-          }
-          if(response.data.chessMove === 'OK'){
-            changeLocationChess({
-              before: { col, row },
-              after: { col: newCol, row: newRow },
-            });
-          }
-        });
+        handlingMove();
         return "OK";
       } catch (error) {
         requestLogs.insertOne({ status: 500, error: error.message, board});
@@ -326,3 +187,4 @@ export const resolvers = {
     },
   },
 };
+
