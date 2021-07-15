@@ -2,17 +2,14 @@ import { requestLogs } from "../mongo";
 import {
   board,
   checkMove_BishopIsWin,
+  checkMove_KingIsWin,
   checkMove_KnightIsWin,
   checkMove_RookIsWin,
-  getChessMan,
-  iconChessBlacks,
-  iconChessWhites,
 } from "../resolvers";
-import { sendRequestToServer } from "../util";
-import { bishopMove, checkBishopWin } from "./logic-Bishop";
-import { checkKingWin, kingMove } from "./logic-King";
-import { checkKnightWin, knightMove } from "./logic-Knight";
-import { checkRookWin, rookMove } from "./logic-Rook";
+import { bishopMove, checkBishopWin } from "./handl-Bishop";
+import { checkKingWin, kingMove } from "./handl-King";
+import { checkKnightWin, knightMove } from "./handl-Knight";
+import { checkRookWin, rookMove } from "./handl-Rook";
 import { Cell, locationMove, newLocation } from "./type";
 
 export const changeLocationChess = (value: locationMove) => {
@@ -21,10 +18,7 @@ export const changeLocationChess = (value: locationMove) => {
   board[value.after.col * 8 + value.after.row].value = valueAtBefore;
   // pubsub.publish(BOARD_CHANEL, { boardSub: board });
 };
-const getChess = (value: String) => {
-  return board.find(el => el.value === value);
-}
-const chooseChessPieces = (
+export const chooseChessPieces = (
   chessWhites: Array<Cell>,
   chessBlacks: Array<Cell>
 ) => {
@@ -34,6 +28,9 @@ const chooseChessPieces = (
     newCol: number;
     newRow: number;
   };
+  const rook = board.find((el) => el.value === "♖")
+  const kningt = board.find((el) => el.value === "♘")
+  const bishop = board.find((el) => el.value === "♗")
   if (checkKingWin(chessBlacks)) {
     var { col, row, newCol, newRow } = checkKingWin(chessBlacks) as newLoca;
   } else if (checkRookWin(chessBlacks)) {
@@ -42,7 +39,37 @@ const chooseChessPieces = (
     var { col, row, newCol, newRow } = checkKnightWin(chessBlacks) as newLoca;
   } else if (checkBishopWin(chessBlacks)) {
     var { col, row, newCol, newRow } = checkBishopWin(chessBlacks) as newLoca;
-  } 
+  } else if(rook && (!checkMove_RookIsWin(rook.col, rook.row, '')
+  || !checkMove_KnightIsWin(rook.col, rook.row) 
+  || !checkMove_BishopIsWin(rook.col, rook.row)
+  || !checkMove_KingIsWin(rook.col, rook.row))){
+    var { newCol, newRow } = rookMove(
+      rook.col,
+      rook.row
+    ) as newLocation;
+    var col = rook.col;
+    var row = rook.row;
+  } else if(kningt && (!checkMove_RookIsWin(kningt.col, kningt.row, '')
+  || !checkMove_KnightIsWin(kningt.col, kningt.row) 
+  || !checkMove_BishopIsWin(kningt.col, kningt.row)
+  || !checkMove_KingIsWin(kningt.col, kningt.row))){
+    var { newCol, newRow } = knightMove(
+      kningt.col,
+      kningt.row
+    ) as newLocation;
+    var col = kningt.col;
+    var row = kningt.row;
+  } else if(bishop && (!checkMove_RookIsWin(bishop.col, bishop.row, '')
+  || !checkMove_KnightIsWin(bishop.col, bishop.row) 
+  || !checkMove_BishopIsWin(bishop.col, bishop.row)
+  || !checkMove_KingIsWin(bishop.col, bishop.row))){
+    var { newCol, newRow } = bishopMove(
+      bishop.col,
+      bishop.row
+    ) as newLocation;
+    var col = bishop.col;
+    var row = bishop.row;
+  }
   else {
     const rand = chessWhites[Math.floor(Math.random() * chessWhites.length)];
     var col = rand.col;
@@ -72,59 +99,4 @@ const chooseChessPieces = (
     newCol,
     newRow,
   };
-};
-export const handlingMove = () => {
-  const locationKing = board.find((el) => el.value === "♔") as Cell;
-  const chessWhites = getChessMan(iconChessWhites).concat();
-  const chessBlacks = getChessMan(iconChessBlacks).concat();
-  checkMove_RookIsWin(locationKing.col, locationKing.row)
-  if (!locationKing) {
-    console.log("You Lose!");
-    return "Black win!";
-  }
-  // if (
-  //   !checkMove_RookIsWin(locationKing.col, locationKing.row) ||
-  //   !checkMove_KnightIsWin(locationKing.col, locationKing.row) ||
-  //   !checkMove_BishopIsWin(locationKing.col, locationKing.row) ||
-  //   chessWhites.length === 1
-  // ) {
-  //   var { newCol, newRow } = kingMove(
-  //     locationKing.col,
-  //     locationKing.row
-  //   ) as newLocation;
-  //   var col = locationKing.col;
-  //   var row = locationKing.row;
-  // } else {
-  //   var { col, row, newCol, newRow } = chooseChessPieces(
-  //     chessWhites,
-  //     chessBlacks
-  //   ) as {col: number, row: number, newCol: number, newRow: number};
-  // }
-  //   requestLogs.insertOne({
-  //     content: "White move",
-  //     before: { col, row },
-  //     after: { col: newCol, row: newRow },
-  //   });
-  //   console.log("request: ", col, row, newCol, newRow);
-    // Gửi request chessMove ở sever của công
-    // sendRequestToServer({
-    //   before: { col: col, row: row },
-    //   after: { col: newCol, row: newRow },
-    // }).then(async (response) => {
-    //   console.log(response);
-    //   if (response.errors) {
-    //     // requestLogs.insertOne({
-    //     //   error: response.errors,
-    //     //   board
-    //     // });
-    //     throw response.errors;
-    //   }
-    //   if (response.data.chessMove === "White win!") {
-    //     requestLogs.insertOne({ status: response.data.chessMove, board });
-    //   }
-    //   changeLocationChess({
-    //     before: { col, row },
-    //     after: { col: newCol, row: newRow },
-    //   });
-    // });
 };

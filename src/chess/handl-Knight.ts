@@ -28,7 +28,7 @@ export const checkKnightWin = (ChessBlacks: Array<Cell>) => {
         var v = knight.row + locationKnight.y;
         if (u === chessBlack.col && v === chessBlack.row) {
           if(
-            checkMove_RookIsWin(chessBlack.col, chessBlack.row) &&
+            checkMove_RookIsWin(chessBlack.col, chessBlack.row, '') &&
             checkMove_KnightIsWin(chessBlack.col, chessBlack.row) &&
             checkMove_BishopIsWin(chessBlack.col, chessBlack.row) &&
             checkMove_KingIsWin(chessBlack.col, chessBlack.row)
@@ -75,7 +75,7 @@ export const knightMove = (col: number, row: number) => {
         before: { col, row },
         after: { col: newCol, row: newRow },
       }) &&
-      checkMove_RookIsWin(newCol, newRow) &&
+      checkMove_RookIsWin(newCol, newRow, '') &&
       checkMove_KnightIsWin(newCol, newRow) &&
       checkMove_BishopIsWin(newCol, newRow) &&
       checkMove_KingIsWin(newCol, newRow)
