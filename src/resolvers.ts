@@ -6,13 +6,8 @@ import { requestLogs } from './mongo';
 import { sendRequestToServer } from './util';
 export const pubsub = new PubSub();
 export const BOARD_CHANEL = 'UPDATED_BOARD';
-
-import { runbishop } from './bishop';
-import { runCastle } from './castle';
-import { runHorse } from './horse';
-import { runKing } from './king';
 import { assertNonNullType } from 'graphql';
-import { runDark } from './runDark';
+import {runWhite} from './direction'
 
 export type Cell = {
   col: number
@@ -23,20 +18,6 @@ export type Cell = {
 export type ChessLocation = {
   col: number,
   row: number,
-}
-
-var white = {
-  Castle: { col: 0, row: 0, del: 0, value: '♖' },
-  Horse: { col: 1, row: 0, del: 0, value: '♘' },
-  Bishop: { col: 2, row: 0, del: 0, value: '♗' },
-  King: { col: 3, row: 0, del: 0, value: '♔' },
-}
-
-var dark = {
-  Castle: { col: 7, row: 7, del: 0, value: '♜' },
-  Horse: { col: 6, row: 7, del: 0, value: '♞' },
-  Bishop: { col: 5, row: 7, del: 0, value: '♝' },
-  King: { col: 4, row: 7, del: 0, value: '♚' },
 }
 
 export let board: Cell[] = (() => {
@@ -52,130 +33,6 @@ export let board: Cell[] = (() => {
   }
   return result
 })()
-
-function runWhite() {
-
-  const result: Cell[] = []
-
-  /* 
-
-  Quét bàn cờ và cập nhật vị trí toạ độ của các quân cờ
-
-  */
-
-  const kingD = board.find(el => el.value === '♚') as Cell
-  const bishopD = board.find(el => el.value === '♝') as Cell
-  const horseD = board.find(el => el.value === '♞') as Cell
-  const castleD = board.find(el => el.value === '♜') as Cell
-
-  if (kingD) {
-    dark.King.row = kingD.row
-    dark.King.col = kingD.col
-    dark.King.del = 0
-  } else {
-    dark.King.del = 1
-  }
-
-  if (bishopD) {
-    dark.Bishop.row = bishopD.row
-    dark.Bishop.col = bishopD.col
-    dark.Bishop.del = 0
-  } else {
-    dark.Bishop.del = 1
-  }
-
-  if (horseD) {
-    dark.Horse.row = horseD.row
-    dark.Horse.col = horseD.col
-    dark.Horse.del = 0
-  } else {
-    dark.Bishop.del = 1
-  }
-
-  if (castleD) {
-    dark.Castle.row = castleD.row
-    dark.Castle.col = castleD.col
-    dark.Castle.del = 0
-  } else {
-    dark.Bishop.del = 1
-  }
-
-  const kingW = board.find(el => el.value === '♔') as Cell
-  const castleW = board.find(el => el.value === '♖') as Cell
-  const bishopW = board.find(el => el.value === '♗') as Cell
-  const horseW = board.find(el => el.value === '♘') as Cell
-
-  if (kingW) {
-    white.King.row = kingW.row
-    white.King.col = kingW.col
-    white.King.del = 0
-  } else {
-    white.Bishop.del = 1
-  }
-
-  if (bishopW) {
-    white.Bishop.row = bishopW.row
-    white.Bishop.col = bishopW.col
-    white.Bishop.del = 0
-  } else {
-    white.Bishop.del = 1
-  }
-
-  if (horseW) {
-    white.Horse.row = horseW.row
-    white.Horse.col = horseW.col
-    white.Horse.del = 0
-  } else {
-    white.Bishop.del = 1
-  }
-
-  if (castleW) {
-    white.Castle.row = castleW.row
-    white.Castle.col = castleW.col
-    white.Castle.del = 0
-  } else {
-    white.Bishop.del = 1
-  }
-
-  let ally = white
-  let oppo = dark
-
-  
-
-  if (kingW) {
-    const { col, row } = runKing(ally, oppo) as ChessLocation
-    result.push({ col: col, row: row, value: '♔' })
-  }
-  if (bishopW) {
-    const { col, row } = runbishop(ally, oppo) as ChessLocation
-    result.push({ col: col, row: row, value: '♗' })
-  }
-  if (horseW) {
-    const { col, row } = runHorse(ally, oppo) as ChessLocation
-    result.push({ col: col, row: row, value: '♘' })
-  }
-  if (castleW) {
-      const { col, row } = runCastle(ally, oppo) as ChessLocation
-     result.push({ col: col, row: row, value: '♖' })
-  }
-
-  const after = result[Math.floor(Math.random() * result.length)]
-
-  const before = board.find(el => el.value === after.value) as Cell
-
-  return {
-    before: {
-      col: before.col,
-      row: before.row,
-    },
-    after: {
-      col: after.col,
-      row: after.row,
-    },
-    value: after.value
-  }
-
-}
 
 export const resolvers = {
   Query: {
@@ -215,7 +72,7 @@ export const resolvers = {
 
           console.log(before, after)
 
-          await requestLogs.insertOne({ value: 'Cong move', before, after, })
+          await requestLogs.insertOne({ author: 'Cong move', before, after, value })
 
           const valueAtBefore = board[before.col * 8 + before.row].value
           board[before.col * 8 + before.row].value = '' // input
@@ -234,7 +91,7 @@ export const resolvers = {
 
           return 'OK'
           //}
-        }, 1000)
+        }, 2000)
         return 'OK'
 
       } catch (error) {
@@ -267,8 +124,8 @@ export const resolvers = {
 
     start: async () => {
 
-      const { before, after } = await runWhite()
-      requestLogs.insertOne({ value: 'Cong move', before, after })
+      const { before, after } = runWhite()
+      requestLogs.insertOne({ Author: 'C move', before, after })
 
       const valueAtBefore = board[before.col * 8 + before.row].value
       board[before.col * 8 + before.row].value = ''

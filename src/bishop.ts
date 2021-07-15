@@ -1,6 +1,7 @@
 import { runHorse } from './horse';
 import { runKing } from './king';
 import { CastleOppo } from './castle'
+import { HorseOppo } from './horse'
 
 type ChessLocation = {
     col: number,
@@ -148,47 +149,70 @@ export function runbishop(ally: any, oppo: any) {
             C6--
 
         }
-
-        const { oppoCastle } = CastleOppo(ally, oppo) as {
-            oppoCastle: [ChessLocation]
-
-        }
-
+        
         /* 
 
         Xoá nước đi nguy hiểm
 
         */
+        if (oppo.Castle.del === 0) {
+            const { oppoCastle } = CastleOppo(ally, oppo) as {
+                oppoCastle: [ChessLocation]
 
-        for (let j = 0; j < resultBishop.length; j++) {
-            for (let index = 0; index < oppoCastle.length; index++) {
-                if (resultBishop[j].row == oppoCastle[index].row && resultBishop[j].col == oppoCastle[index].col) {
-                    console.log("deleted Bishop vs Castle", resultBishop[j])
-                    resultBishop.splice(j, 1, '')
+            }
+            for (let j = 0; j < resultBishop.length; j++) {
+                for (let index = 0; index < oppoCastle.length; index++) {
+                    if (resultBishop[j].row == oppoCastle[index].row && resultBishop[j].col == oppoCastle[index].col) {
+                        //console.log("deleted Bishop vs Castle", resultBishop[j])
+                        resultBishop.splice(j, 1, '')
+                    }
                 }
             }
-        }
-        resultBishop = resultBishop.filter(Boolean)
-
-        const { oppoBishop } = BishopOppo(ally, oppo) as {
-            oppoBishop: [ChessLocation]
-
+            resultBishop = resultBishop.filter(Boolean)
         }
 
-        for (let j = 0; j < resultBishop.length; j++) {
-            for (let index = 0; index < oppoBishop.length; index++) {
-                if (resultBishop[j].row == oppoBishop[index].row && resultBishop[j].col == oppoBishop[index].col) {
-                    console.log("deleted Bishop vs Bishop", resultBishop[j])
-                    resultBishop.splice(j, 1, '')
+        if (oppo.Bishop.del === 0) {
+            const { oppoBishop } = BishopOppo(ally, oppo) as {
+                oppoBishop: [ChessLocation]
+
+            }
+
+            for (let j = 0; j < resultBishop.length; j++) {
+                for (let index = 0; index < oppoBishop.length; index++) {
+                    if (resultBishop[j].row == oppoBishop[index].row && resultBishop[j].col == oppoBishop[index].col) {
+                        //console.log("deleted Bishop vs Bishop", resultBishop[j])
+                        resultBishop.splice(j, 1, '')
+                    }
                 }
             }
+
+            resultBishop = resultBishop.filter(Boolean)
+
         }
 
-        resultBishop = resultBishop.filter(Boolean)
+        if (oppo.Horse.del === 0) {
+            const { oppoHorse } = HorseOppo(ally, oppo) as {
+                oppoHorse: [ChessLocation]
+            }
+
+            for (let j = 0; j < resultBishop.length; j++) {
+                for (let index = 0; index < oppoHorse.length; index++) {
+                    if (resultBishop[j].row === oppoHorse[index].row && resultBishop[j].col === oppoHorse[index].col) {
+                        //console.log("deleted Bishop vs Horse")
+                        resultBishop.splice(j, 1, '')
+                    }
+                }
+            }
+
+            resultBishop = resultBishop.filter(Boolean)
+        }
 
         const result = resultBishop[Math.floor((Math.random()) * resultBishop.length)]
 
-        if (!result) { throw new Error(" result not received ") }
+        if (!result) {
+            console.log(result)
+            throw new Error(" result not received ")
+        }
 
         return { col: result.col, row: result.row }
 
@@ -226,7 +250,7 @@ export function BishopOppo(ally: any, oppo: any) {
             if (R1 === ally.King.row && C1 === ally.King.col) {
                 break
             }
-            
+
             if (R1 !== oppo.Bishop.row && C1 !== oppo.Bishop.col) {
 
                 oppoBishop.push({ row: R1, col: C1 })
@@ -313,8 +337,11 @@ export function BishopOppo(ally: any, oppo: any) {
 
         const result = oppoBishop[Math.floor((Math.random()) * oppoBishop.length)]
 
-        if (!result) { throw new Error(" result not received ") }
-        
+        if (!result) {
+            console.log(result)
+            throw new Error(" result not received ")
+        }
+
         return { oppoBishop }
 
     } catch (error) {
