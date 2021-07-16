@@ -18,12 +18,16 @@ export function runDark(white: any, dark: any) {
 
     */
 
+    const kingW = board.find(el => el.value === '♔') as Cell
+    const castleW = board.find(el => el.value === '♖') as Cell
+    const bishopW = board.find(el => el.value === '♗') as Cell
+    const horseW = board.find(el => el.value === '♘') as Cell
+
     let ally = dark
     let oppo = white
 
     const result: Cell[] = []
 
-    
 
     if (dark.King.del === 0) {
 
@@ -61,19 +65,19 @@ export function runDark(white: any, dark: any) {
 
     for (let index = 0; index < result.length; index++) {
 
-        if (result[index].col === oppo.King.col && result[index].row === oppo.King.row && oppo.King.del === 0) {
+        if (result[index].col === white.King.col && result[index].row === white.King.row && kingW) {
             return "King"
 
         }
-        else if (result[index].col === oppo.Castle.col && result[index].row === oppo.Castle.row && oppo.King.del === 0) {
+        if (result[index].col === white.Castle.col && result[index].row === white.Castle.row && castleW) {
             return "Castle"
 
         }
-        else if (result[index].col === oppo.Horse.col && result[index].row === oppo.Horse.row && oppo.King.del === 0) {
+        if (result[index].col === white.Horse.col && result[index].row === white.Horse.row && horseW) {
             return "Horse"
 
         }
-        else if (result[index].col === oppo.Bishop.col && result[index].row === oppo.Bishop.row && oppo.King.del === 0) {
+        if (result[index].col === white.Bishop.col && result[index].row === white.Bishop.row && bishopW) {
             return "Bishop"
 
         }

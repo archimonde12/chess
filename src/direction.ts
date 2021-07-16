@@ -20,7 +20,11 @@ var dark = {
     King: { col: 4, row: 7, del: 0, value: '♚' },
 }
 
+var turn = 0
+
 export function runWhite() {
+    console.log(turn)
+    turn +=1
 
     const result: Cell[] = []
 
@@ -74,7 +78,6 @@ export function runWhite() {
     }
 
 
-
     if (kingW) {
         white.King.row = kingW.row
         white.King.col = kingW.col
@@ -114,22 +117,23 @@ export function runWhite() {
 
     console.log('Quân cờ đang gặp nguy hiểm', _runDark)
 
-    if (_runDark === 'King' && kingW) {
+    if (_runDark === 'King') {
         const { col, row } = runKing(ally, oppo) as ChessLocation
         result.push({ col: col, row: row, value: '♔' })
     }
-    else if (_runDark === 'Castle' && castleW) {
+    else if (_runDark === 'Castle') {
         const { col, row } = runCastle(ally, oppo) as ChessLocation
         result.push({ col: col, row: row, value: '♖' })
     }
-    else if (_runDark === 'Horse' && horseW) {
+    else if (_runDark === 'Horse') {
         const { col, row } = runHorse(ally, oppo) as ChessLocation
         result.push({ col: col, row: row, value: '♘' })
     }
-    else if (_runDark === 'Bishop' && bishopW) {
+    else if (_runDark === 'Bishop') {
         const { col, row } = runbishop(ally, oppo) as ChessLocation
         result.push({ col: col, row: row, value: '♗' })
-    } else if (_runDark === 'safe') {
+    } 
+    else if (_runDark == 'safe') {
         console.log('An toàn => Random nước đi 1 trong 4')
 
         if (kingW) {

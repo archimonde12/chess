@@ -42,11 +42,12 @@ export function runKing(ally: any, oppo: any) {
             }
         }
 
+        const _resultKing : ChessLocation[] =[]
+        _resultKing.concat(resultKing)
+
         /*
- 
-Xoá nước đi trùng đồng minh
- 
-*/
+        Xoá nước đi trùng đồng minh
+        */
 
         for (let index = 0; index < resultKing.length; index++) {
             if (resultKing[index].col === ally.Horse.col && resultKing[index].row === ally.Horse.row && ally.Horse.del === 0
@@ -54,10 +55,10 @@ Xoá nước đi trùng đồng minh
                 || resultKing[index].col === ally.Castle.col && resultKing[index].row === ally.Castle.row && ally.Castle.del === 0) {
                 resultKing.splice(index, 1, '')
             }
-
         }
 
         resultKing = resultKing.filter(Boolean)
+        
 
         /*
         Xoá nước đi nguy hiểm
@@ -78,9 +79,7 @@ Xoá nước đi trùng đồng minh
                     }
                 }
             }
-
             resultKing = resultKing.filter(Boolean)
-
         }
 
         // Tịnh
@@ -98,7 +97,9 @@ Xoá nước đi trùng đồng minh
                     }
                 }
             }
+            resultKing = resultKing.filter(Boolean)
         }
+        
 
         // Mã
 
@@ -114,40 +115,74 @@ Xoá nước đi trùng đồng minh
                     }
                 }
             }
+            resultKing = resultKing.filter(Boolean)
+        }
+        
+        // Vua
+
+        if (oppo.King.del === 0) {
+            const { oppoKing } = KingOppo(ally, oppo) as {
+                oppoKing: [ChessLocation]
+            }
+
+            for (let j = 0; j < resultKing.length; j++) {
+                for (let index = 0; index < oppoKing.length; index++) {
+                    if (resultKing[j].row === oppoKing[index].row && resultKing[j].col === oppoKing[index].col) {
+                        resultKing.splice(j, 1, '')
+                    }
+                }
+            }
+            resultKing = resultKing.filter(Boolean)
         }
 
-        resultKing = resultKing.filter(Boolean)
-
-        
+       
 
         /*
+        
         Tiêu diệt quân cờ của đối thủ
 
         */
 
         for (let index = 0; index < resultKing.length; index++) {
-            if (resultKing[index].col === oppo.King.col && resultKing[index].row === oppo.King.row && oppo.King.del === 0  ) {
-                return { col : resultKing[index].col , row:resultKing[index].row  } 
+            if (resultKing[index].col === oppo.King.col && resultKing[index].row === oppo.King.row && oppo.King.del === 0) {
+                return { col: resultKing[index].col, row: resultKing[index].row }
             }
-            if (resultKing[index].col === oppo.Castle.col && resultKing[index].row === oppo.Castle.row && oppo.Castle.del === 0  ) {
-                return { col : resultKing[index].col , row:resultKing[index].row  } 
+            if (resultKing[index].col === oppo.Castle.col && resultKing[index].row === oppo.Castle.row && oppo.Castle.del === 0) {
+                return { col: resultKing[index].col, row: resultKing[index].row }
             }
-            if (resultKing[index].col === oppo.Horse.col && resultKing[index].row === oppo.Horse.row && oppo.Horse.del === 0  ) {
-                return { col : resultKing[index].col , row:resultKing[index].row  } 
+            if (resultKing[index].col === oppo.Horse.col && resultKing[index].row === oppo.Horse.row && oppo.Horse.del === 0) {
+                return { col: resultKing[index].col, row: resultKing[index].row }
             }
-            if (resultKing[index].col === oppo.Bishop.col && resultKing[index].row === oppo.Bishop.row && oppo.Bishop.del === 0  ) {
-                return { col : resultKing[index].col , row:resultKing[index].row  } 
+            if (resultKing[index].col === oppo.Bishop.col && resultKing[index].row === oppo.Bishop.row && oppo.Bishop.del === 0) {
+                return { col: resultKing[index].col, row: resultKing[index].row }
             }
-            
+
         }
 
-        const _data = resultKing[Math.floor(Math.random() * resultKing.length)]
-        if (!_data) {
-            console.log(resultKing)
-            throw new Error('Data King is not define')
-        }
+        /*
+        Trả về kết quả
+        Nếu hết nước đi => Đầu hàng
 
-        return { col: _data.col, row: _data.row }
+        */
+
+        if (resultKing.length > 0) {
+            const _data = resultKing[Math.floor(Math.random() * resultKing.length)]
+            if (!_data) {
+                console.log(ally, oppo)
+                console.log(resultKing)
+                throw new Error('Data King is not define')
+            }
+            return { col: _data.col, row: _data.row }
+        } else {
+            const _data = _resultKing[Math.floor(Math.random() * _resultKing.length)]
+            if (!_data) {
+                console.log(ally, oppo)
+                console.log(_resultKing)
+                throw new Error('Data King is not define')
+            }
+            return { col: _data.col, row: _data.row }
+
+        }
 
     } catch (error) {
         console.log(" Run King error ", error)
@@ -157,7 +192,7 @@ Xoá nước đi trùng đồng minh
 
 export function KingOppo(ally: any, oppo: any) {
 
-    let resultKing: any[] = []
+    let oppoKing: any[] = []
 
     const move = [
         { X: - 1, Y: + 1 },
@@ -173,19 +208,11 @@ export function KingOppo(ally: any, oppo: any) {
         if (oppo.King.col + move[index].X >= 0 && oppo.King.col + move[index].X <= 7 &&
             oppo.King.row + move[index].Y >= 0 && oppo.King.row + move[index].Y <= 7
         ) {
-            resultKing.push({ col: oppo.King.col + move[index].X, row: oppo.King.row + move[index].Y })
+            oppoKing.push({ col: oppo.King.col + move[index].X, row: oppo.King.row + move[index].Y })
         }
     }
 
-    resultKing = resultKing.filter(Boolean)
+    oppoKing = oppoKing.filter(Boolean)
 
-    const _data = resultKing[Math.floor((Math.random()) * resultKing.length)]
-    if (_data.col !== oppo.Bishop.col && _data.row !== oppo.Bishop.row && oppo.Bishop.del === 0
-        || _data.col !== oppo.Castle.col && _data.row !== oppo.Castle.row && oppo.Castle.del === 0) {
-        console.log(_data)
-        return { col: _data.col, row: _data.row }
-
-    } else {
-        return runKing(ally, oppo)
-    }
+    return { oppoKing }
 }
