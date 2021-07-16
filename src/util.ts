@@ -20,7 +20,21 @@ export const sendRequestToServer = async (value: parameters) => {
       `,
     }),
   });
- 
+  const { data } = res;
+  return data;
+};
+export const sendRequestStopGameToServer = async () => {
+  let res = await axios(CONFIG_OPPONENT_URI, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    data: JSON.stringify({
+      query: `
+        mutation{
+          stop
+        }
+      `,
+    }),
+  });
   const { data } = res;
   return data;
 };

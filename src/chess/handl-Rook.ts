@@ -96,7 +96,7 @@ export const rookMove = (col: number, row: number) => {
     }
   }
   console.log('Xe hết đường!');
-  return 'do not way';
+  return false;
 };
 export const checkRookWin = (ChessBlacks: Array<Cell>) => {
   const rook = board.find((el) => el.value === "♖") as Cell;

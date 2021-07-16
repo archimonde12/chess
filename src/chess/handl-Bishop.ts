@@ -163,6 +163,6 @@ export const bishopMove = (col: number, row: number) => {
       return { newCol, newRow };
     }
   }
-  console.log('Tượng hết đường đi!')
-  return 'do not way'
+  console.log('Tượng hết đường đi!');
+  return false;
 };

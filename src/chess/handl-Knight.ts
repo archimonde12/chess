@@ -8,7 +8,7 @@ import {
   getChessMan,
   iconChessWhites,
 } from "../resolvers";
-import { Cell, locationMove } from "./type";
+import { Cell, locationMove, newLocation } from "./type";
 export const Hxy = [
   { x: -2, y: -1 },
   { x: -2, y: 1 },
@@ -60,12 +60,13 @@ const checkKnightMoveIsInvalid = (location: locationMove): boolean => {
 export const knightMove = (col: number, row: number) => {
   var arrRands = arrRand.concat();
   var isCheck = false;
+  let arrLocation: Array<newLocation> = []
   while (!isCheck && arrRands.length > 0) {
     const index = Math.floor(Math.random() * arrRands.length);
     const rand = arrRands[index];
     arrRands.splice(index, 1);
     let newCol = col + Hxy[rand].x;
-    var newRow = row + Hxy[rand].y;
+    let newRow = row + Hxy[rand].y;
     if (
       newCol >= 0 &&
       newCol < 8 &&
@@ -74,16 +75,19 @@ export const knightMove = (col: number, row: number) => {
       checkKnightMoveIsInvalid({
         before: { col, row },
         after: { col: newCol, row: newRow },
-      }) &&
-      checkMove_RookIsWin(newCol, newRow, '') &&
+      })
+    ) {
+      arrLocation.push({newCol, newRow})
+      if(checkMove_RookIsWin(newCol, newRow, '') &&
       checkMove_KnightIsWin(newCol, newRow) &&
       checkMove_BishopIsWin(newCol, newRow) &&
-      checkMove_KingIsWin(newCol, newRow)
-    ) {
-      isCheck = true;
-      return { newCol, newRow };
+      checkMove_KingIsWin(newCol, newRow)){
+        isCheck = true;
+        return { newCol, newRow };
+      }
     }
   }
+  const { newCol, newRow } = arrLocation[Math.floor(Math.random() *arrLocation.length)]
   console.log("Mã hết đường đi!");
-  return "Do not way";
+  return { newCol, newRow};
 };

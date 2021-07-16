@@ -6,7 +6,7 @@ import { Hxy } from "./chess/handl-Knight";
 import { rookMoveIsInvalid } from "./chess/handl-Rook";
 import { Cell, locationMove, newLocation } from "./chess/type";
 import { requestLogs } from "./mongo";
-import { initBoard, sendRequestToServer } from "./util";
+import { initBoard, sendRequestStopGameToServer, sendRequestToServer } from "./util";
 export const pubsub = new PubSub();
 export const BOARD_CHANEL = "UPDATED_BOARD";
 
@@ -14,7 +14,8 @@ export const arrRand = [0, 1, 2, 3, 4, 5, 6, 7];
 export const iconChessBlacks = ["♚", "♜", "♞", "♝"];
 export const iconChessWhites = ["♔", "♖", "♘", "♗"];
 
-export var isWin = "";
+var isWin = "";
+var is_game_stop = false;
 export let board: Cell[] = (() => {
   let result: Cell[] = [];
   for (let col = 0; col < 8; col++) {
@@ -156,7 +157,8 @@ export const resolvers = {
         if (
           !checkMove_RookIsWin(locationKing.col, locationKing.row, locationKing.value) ||
           !checkMove_KnightIsWin(locationKing.col, locationKing.row) ||
-          !checkMove_BishopIsWin(locationKing.col, locationKing.row)
+          !checkMove_BishopIsWin(locationKing.col, locationKing.row) ||
+          chessWhites.length < 1
         ) {
           var { newCol, newRow } = kingMove(
             locationKing.col,
@@ -164,6 +166,13 @@ export const resolvers = {
           ) as newLocation;
           var col = locationKing.col;
           var row = locationKing.row;
+          if( !newCol && !newRow) {
+            isWin = 'Black win!';
+            console.log('You lose!')
+            return kingMove(
+              locationKing.col,
+              locationKing.row);
+          }
         } else {
           var { col, row, newCol, newRow } = chooseChessPieces(
             chessWhites,
@@ -216,10 +225,12 @@ export const resolvers = {
           console.log("You Lose!");
           return "Black win!";
         }
+        console.log(chessWhites)
         if (
           !checkMove_RookIsWin(locationKing.col, locationKing.row, locationKing.value) ||
           !checkMove_KnightIsWin(locationKing.col, locationKing.row) ||
-          !checkMove_BishopIsWin(locationKing.col, locationKing.row)
+          !checkMove_BishopIsWin(locationKing.col, locationKing.row) ||
+          chessWhites.length < 1
         ) {
           var { newCol, newRow } = kingMove(
             locationKing.col,
@@ -227,7 +238,11 @@ export const resolvers = {
           ) as newLocation;
           var col = locationKing.col;
           var row = locationKing.row;
-          console.log("cần né!");
+          if( !newCol && !newRow) {
+            return kingMove(
+              locationKing.col,
+              locationKing.row);
+          }
         } else {
           var { col, row, newCol, newRow } = chooseChessPieces(
             chessWhites,
@@ -291,6 +306,15 @@ export const resolvers = {
       initBoard();
       return "OK";
     },
+    stop: () => {
+      is_game_stop = true;
+      console.log('is_game_stop: ', is_game_stop);
+      sendRequestStopGameToServer();
+      return 'OK';
+    },
+    resume: () => {
+      return 'OK';
+    }
   },
   Subscription: {
     boardSub: {

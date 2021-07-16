@@ -31,6 +31,8 @@ export const typeDefs = gql`
 
   type Mutation {
     start: String
+    stop: String
+    resume: String
     newGame: String
     chessMove(before: SquareInput!, after: SquareInput!): String
     boardInit(init: [SquareInitInput]): [Square]

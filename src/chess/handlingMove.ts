@@ -29,6 +29,8 @@ export const chooseChessPieces = (
     newRow: number;
   };
   const rook = board.find((el) => el.value === "♖")
+  const rookBlack = board.find((el) => el.value === "♜")
+  const king = board.find((el) => el.value === "♔")
   const kningt = board.find((el) => el.value === "♘")
   const bishop = board.find((el) => el.value === "♗")
   if (checkKingWin(chessBlacks)) {
@@ -39,30 +41,36 @@ export const chooseChessPieces = (
     var { col, row, newCol, newRow } = checkKnightWin(chessBlacks) as newLoca;
   } else if (checkBishopWin(chessBlacks)) {
     var { col, row, newCol, newRow } = checkBishopWin(chessBlacks) as newLoca;
-  } else if(rook && (!checkMove_RookIsWin(rook.col, rook.row, '')
+  } else if(rook && ((!checkMove_RookIsWin(rook.col, rook.row, '') 
+  && king && rookBlack && king.col !== rookBlack.col && king.row !== rookBlack.row)
   || !checkMove_KnightIsWin(rook.col, rook.row) 
   || !checkMove_BishopIsWin(rook.col, rook.row)
-  || !checkMove_KingIsWin(rook.col, rook.row))){
+  || !checkMove_KingIsWin(rook.col, rook.row))
+  && rookMove(rook.col, rook.row)){
     var { newCol, newRow } = rookMove(
       rook.col,
       rook.row
     ) as newLocation;
     var col = rook.col;
     var row = rook.row;
-  } else if(kningt && (!checkMove_RookIsWin(kningt.col, kningt.row, '')
+  } else if(kningt && ((!checkMove_RookIsWin(kningt.col, kningt.row, '')
+  && king && rookBlack && king.col !== rookBlack.col && king.row !== rookBlack.row)
   || !checkMove_KnightIsWin(kningt.col, kningt.row) 
   || !checkMove_BishopIsWin(kningt.col, kningt.row)
-  || !checkMove_KingIsWin(kningt.col, kningt.row))){
+  || !checkMove_KingIsWin(kningt.col, kningt.row)) 
+  && knightMove(kningt.col, kningt.row)){
     var { newCol, newRow } = knightMove(
       kningt.col,
       kningt.row
     ) as newLocation;
     var col = kningt.col;
     var row = kningt.row;
-  } else if(bishop && (!checkMove_RookIsWin(bishop.col, bishop.row, '')
+  } else if(bishop && ((!checkMove_RookIsWin(bishop.col, bishop.row, '')
+  && king && rookBlack && king.col !== rookBlack.col && king.row !== rookBlack.row)
   || !checkMove_KnightIsWin(bishop.col, bishop.row) 
   || !checkMove_BishopIsWin(bishop.col, bishop.row)
-  || !checkMove_KingIsWin(bishop.col, bishop.row))){
+  || !checkMove_KingIsWin(bishop.col, bishop.row))
+  && bishopMove(bishop.col, bishop.row)){
     var { newCol, newRow } = bishopMove(
       bishop.col,
       bishop.row
