@@ -38,6 +38,21 @@ export const sendRequestStopGameToServer = async () => {
   const { data } = res;
   return data;
 };
+export const sendRequestResumeToServer = async () => {
+  let res = await axios(CONFIG_OPPONENT_URI, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    data: JSON.stringify({
+      query: `
+        mutation{
+          resume
+        }
+      `,
+    }),
+  });
+  const { data } = res;
+  return data;
+};
 export const initBoard = () => {
   resolvers.Mutation.boardInit(
     {},
