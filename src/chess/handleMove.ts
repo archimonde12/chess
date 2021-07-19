@@ -1,4 +1,3 @@
-import { requestLogs } from "../mongo";
 import {
   board,
   checkMove_BishopIsWin,
@@ -6,10 +5,10 @@ import {
   checkMove_KnightIsWin,
   checkMove_RookIsWin,
 } from "../resolvers";
-import { bishopMove, checkBishopWin } from "./handl-Bishop";
-import { checkKingWin, kingMove } from "./handl-King";
-import { checkKnightWin, knightMove } from "./handl-Knight";
-import { checkRookWin, rookMove } from "./handl-Rook";
+import { bishopMove, checkBishopWin } from "./handle-Bishop";
+import { checkKingWin, kingMove } from "./handle-King";
+import { checkKnightWin, knightMove } from "./handle-Knight";
+import { checkRookWin, rookMove } from "./handle-Rook";
 import { Cell, locationMove, newLocation } from "./type";
 
 export const changeLocationChess = (value: locationMove) => {
@@ -28,11 +27,11 @@ export const chooseChessPieces = (
     newCol: number;
     newRow: number;
   };
-  const rook = board.find((el) => el.value === "♖")
-  const rookBlack = board.find((el) => el.value === "♜")
-  const king = board.find((el) => el.value === "♔")
-  const kningt = board.find((el) => el.value === "♘")
-  const bishop = board.find((el) => el.value === "♗")
+  const rook = board.find((el) => el.value === "♖");
+  const rookBlack = board.find((el) => el.value === "♜");
+  const king = board.find((el) => el.value === "♔");
+  const kningt = board.find((el) => el.value === "♘");
+  const bishop = board.find((el) => el.value === "♗");
   if (checkKingWin(chessBlacks)) {
     var { col, row, newCol, newRow } = checkKingWin(chessBlacks) as newLoca;
   } else if (checkRookWin(chessBlacks)) {
@@ -41,44 +40,52 @@ export const chooseChessPieces = (
     var { col, row, newCol, newRow } = checkKnightWin(chessBlacks) as newLoca;
   } else if (checkBishopWin(chessBlacks)) {
     var { col, row, newCol, newRow } = checkBishopWin(chessBlacks) as newLoca;
-  } else if(rook && ((!checkMove_RookIsWin(rook.col, rook.row, '') 
-  && king && rookBlack && king.col !== rookBlack.col && king.row !== rookBlack.row)
-  || !checkMove_KnightIsWin(rook.col, rook.row) 
-  || !checkMove_BishopIsWin(rook.col, rook.row)
-  || !checkMove_KingIsWin(rook.col, rook.row))
-  && rookMove(rook.col, rook.row)){
-    var { newCol, newRow } = rookMove(
-      rook.col,
-      rook.row
-    ) as newLocation;
+  } else if (
+    rook &&
+    ((!checkMove_RookIsWin(rook.col, rook.row, "") &&
+      king &&
+      rookBlack &&
+      king.col !== rookBlack.col &&
+      king.row !== rookBlack.row) ||
+      !checkMove_KnightIsWin(rook.col, rook.row) ||
+      !checkMove_BishopIsWin(rook.col, rook.row) ||
+      !checkMove_KingIsWin(rook.col, rook.row)) &&
+    rookMove(rook.col, rook.row)
+  ) {
+    var { newCol, newRow } = rookMove(rook.col, rook.row) as newLocation;
     var col = rook.col;
     var row = rook.row;
-  } else if(kningt && ((!checkMove_RookIsWin(kningt.col, kningt.row, '')
-  && king && rookBlack && king.col !== rookBlack.col && king.row !== rookBlack.row)
-  || !checkMove_KnightIsWin(kningt.col, kningt.row) 
-  || !checkMove_BishopIsWin(kningt.col, kningt.row)
-  || !checkMove_KingIsWin(kningt.col, kningt.row)) 
-  && knightMove(kningt.col, kningt.row)){
-    var { newCol, newRow } = knightMove(
-      kningt.col,
-      kningt.row
-    ) as newLocation;
+  } else if (
+    kningt &&
+    ((!checkMove_RookIsWin(kningt.col, kningt.row, "") &&
+      king &&
+      rookBlack &&
+      king.col !== rookBlack.col &&
+      king.row !== rookBlack.row) ||
+      !checkMove_KnightIsWin(kningt.col, kningt.row) ||
+      !checkMove_BishopIsWin(kningt.col, kningt.row) ||
+      !checkMove_KingIsWin(kningt.col, kningt.row)) &&
+    knightMove(kningt.col, kningt.row)
+  ) {
+    var { newCol, newRow } = knightMove(kningt.col, kningt.row) as newLocation;
     var col = kningt.col;
     var row = kningt.row;
-  } else if(bishop && ((!checkMove_RookIsWin(bishop.col, bishop.row, '')
-  && king && rookBlack && king.col !== rookBlack.col && king.row !== rookBlack.row)
-  || !checkMove_KnightIsWin(bishop.col, bishop.row) 
-  || !checkMove_BishopIsWin(bishop.col, bishop.row)
-  || !checkMove_KingIsWin(bishop.col, bishop.row))
-  && bishopMove(bishop.col, bishop.row)){
-    var { newCol, newRow } = bishopMove(
-      bishop.col,
-      bishop.row
-    ) as newLocation;
+  } else if (
+    bishop &&
+    ((!checkMove_RookIsWin(bishop.col, bishop.row, "") &&
+      king &&
+      rookBlack &&
+      king.col !== rookBlack.col &&
+      king.row !== rookBlack.row) ||
+      !checkMove_KnightIsWin(bishop.col, bishop.row) ||
+      !checkMove_BishopIsWin(bishop.col, bishop.row) ||
+      !checkMove_KingIsWin(bishop.col, bishop.row)) &&
+    bishopMove(bishop.col, bishop.row)
+  ) {
+    var { newCol, newRow } = bishopMove(bishop.col, bishop.row) as newLocation;
     var col = bishop.col;
     var row = bishop.row;
-  }
-  else {
+  } else {
     const rand = chessWhites[Math.floor(Math.random() * chessWhites.length)];
     var col = rand.col;
     var row = rand.row;
@@ -97,7 +104,7 @@ export const chooseChessPieces = (
         break;
     }
     if (!newCol && !newRow && chessWhites.length > 1) {
-      console.log('------------load lại')
+      console.log("------------load lại");
       return chooseChessPieces(chessWhites, chessBlacks);
     }
   }
