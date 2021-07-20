@@ -1,20 +1,11 @@
 import { HorseOppo } from './horse';
-import { KingOppo } from './king';
+import { KingOppo, runKing } from './king';
 import { CastleOppo } from './castle'
 
 type ChessLocation = {
     col: number,
     row: number,
 }
-
-/*
-
-Lỗi tịnh nhảy qua đầu => Ok
-Lỗi tịnh không di chuyển => Ok
-Tịnh né con xe đối thủ => Ok
-Tịnh né con tịnh đối thủ => Ok
-
-*/
 
 export function runbishop(ally: any, oppo: any) {
 
@@ -37,14 +28,11 @@ export function runbishop(ally: any, oppo: any) {
             if (R1 === ally.Castle.row && C1 === ally.Castle.col && ally.Castle.del === 0) {
                 break
             }
-            if (R1 === ally.King.row && C1 === ally.King.col) {
-                break
-            }
+
 
             if (R1 !== ally.Bishop.row && C1 !== ally.Bishop.col) {
 
                 resultBishop.push({ row: R1, col: C1 })
-
             }
 
             if (R1 === oppo.King.row && C1 === oppo.King.col && oppo.King.del == 0) { return { row: R1, col: C1 } }
@@ -74,9 +62,7 @@ export function runbishop(ally: any, oppo: any) {
                 break
             }
             if (R5 !== ally.Bishop.row && C5 !== ally.Bishop.col) {
-
                 resultBishop.push({ row: R5, col: C5 })
-
             }
 
             if (R5 === oppo.King.row && C5 === oppo.King.col && oppo.King.del == 0) { return { row: R5, col: C5 } }
@@ -157,9 +143,17 @@ export function runbishop(ally: any, oppo: any) {
             C6--
 
         }
+        if (resultBishop.length === 0) {
+            console.log(' bishop result null')
 
-        const _resultBishop: ChessLocation[] = []
-        _resultBishop.concat(resultBishop)
+            return runKing(ally, oppo)
+        }
+
+        console.log("tinh", resultBishop)
+
+        let _resultBishop: any[] = []
+        _resultBishop = [...resultBishop]
+
         /* 
         Xoá nước đi có thể bị ăn
         */
@@ -174,32 +168,31 @@ export function runbishop(ally: any, oppo: any) {
 
             for (let j = 0; j < resultBishop.length; j++) {
                 for (let index = 0; index < oppoCastle.length; index++) {
-                    if (resultBishop[j].row == oppoCastle[index].row && resultBishop[j].col == oppoCastle[index].col) {
+                    if (resultBishop[j].row === oppoCastle[index].row && resultBishop[j].col === oppoCastle[index].col) {
                         resultBishop.splice(j, 1, '')
                     }
                 }
             }
             resultBishop = resultBishop.filter(Boolean)
+
         }
-
-
 
         // Tịnh đối thủ
 
         if (oppo.Horse.del === 0) {
             const { oppoBishop } = BishopOppo(ally, oppo) as {
                 oppoBishop: [ChessLocation]
-
             }
 
             for (let j = 0; j < resultBishop.length; j++) {
                 for (let index = 0; index < oppoBishop.length; index++) {
-                    if (resultBishop[j].row == oppoBishop[index].row && resultBishop[j].col == oppoBishop[index].col) {
+                    if (resultBishop[j].row === oppoBishop[index].row && resultBishop[j].col === oppoBishop[index].col) {
                         resultBishop.splice(j, 1, '')
                     }
                 }
             }
             resultBishop = resultBishop.filter(Boolean)
+
         }
 
         // Vua
@@ -266,14 +259,12 @@ export function runbishop(ally: any, oppo: any) {
         console.log(error)
 
     }
-
+    
 }
 
 export function BishopOppo(ally: any, oppo: any) {
 
     try {
-
-        if (!ally) { throw new Error(" Ally not received ") }
 
         if (!oppo) { throw new Error(" Oppo not received ") }
 

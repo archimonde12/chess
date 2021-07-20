@@ -77,7 +77,7 @@ export function runWhite() {
         dark.Castle.del = 1
     }
 
-
+    
     if (kingW) {
         white.King.row = kingW.row
         white.King.col = kingW.col
@@ -112,45 +112,59 @@ export function runWhite() {
 
     const _runDark = runDark(white, dark)
 
-    let ally = white
-    let oppo = dark
+    // let ally = white
+    // let oppo = dark
 
     console.log('Quân cờ đang gặp nguy hiểm', _runDark)
 
     if (_runDark === 'King') {
-        const { col, row } = runKing(ally, oppo) as ChessLocation
+        const { col, row } = runKing(white, dark) as ChessLocation
         result.push({ col: col, row: row, value: '♔' })
     }
     else if (_runDark === 'Castle') {
-        const { col, row } = runCastle(ally, oppo) as ChessLocation
+        const { col, row } = runCastle(white, dark) as ChessLocation
         result.push({ col: col, row: row, value: '♖' })
     }
     else if (_runDark === 'Horse') {
-        const { col, row } = runHorse(ally, oppo) as ChessLocation
+        const { col, row } = runHorse(white, dark) as ChessLocation
         result.push({ col: col, row: row, value: '♘' })
     }
     else if (_runDark === 'Bishop') {
-        const { col, row } = runbishop(ally, oppo) as ChessLocation
+        const { col, row } = runbishop(white, dark) as ChessLocation
         result.push({ col: col, row: row, value: '♗' })
     } 
-    else if (_runDark == 'safe') {
+    else if (_runDark === 'safe') {
         console.log('An toàn => Random nước đi 1 trong 4')
 
-        if (kingW) {
-            const { col, row } = runKing(ally, oppo) as ChessLocation
-            result.push({ col: col, row: row, value: '♔' })
-        }
-        if (bishopW) {
-            const { col, row } = runbishop(ally, oppo) as ChessLocation
-            result.push({ col: col, row: row, value: '♗' })
-        }
-        if (horseW) {
-            const { col, row } = runHorse(ally, oppo) as ChessLocation
-            result.push({ col: col, row: row, value: '♘' })
-        }
-        if (castleW) {
-            const { col, row } = runCastle(ally, oppo) as ChessLocation
-            result.push({ col: col, row: row, value: '♖' })
+        let direction: any[] = []
+        if (kingW) { direction.push('king') }
+        if (bishopW) { direction.push('bishop') }
+        if (horseW) { direction.push('horse') }
+        if (castleW) { direction.push('castle') }
+
+        const direct = direction[Math.floor(Math.random() * direction.length)]
+
+        switch (direct) {
+            case 'king': {
+                const { col, row } = runKing(white, dark) as ChessLocation
+                result.push({ col: col, row: row, value: '♔' })
+                break;
+            }
+            case 'bishop': {
+                const { col, row } = runbishop(white, dark) as ChessLocation
+                result.push({ col: col, row: row, value: '♗' })
+                break;
+            }
+            case 'horse': {
+                const { col, row } = runHorse(white, dark) as ChessLocation
+                result.push({ col: col, row: row, value: '♘' })
+                break;
+            }
+            case 'castle': {
+                const { col, row } = runCastle(white, dark) as ChessLocation
+                result.push({ col: col, row: row, value: '♖' })
+                break;
+            }
         }
     }
 
@@ -162,19 +176,18 @@ export function runWhite() {
 
     for (let index = 0; index < result.length; index++) {
 
-        if (result[index].col == oppo.King.col && result[index].row == oppo.King.row) {
+        if (result[index].col === dark.King.col && result[index].row == dark.King.row) {
             return _result(result[index].col, result[index].row, result[index].value)
         }
-        else if (result[index].col == oppo.Castle.col && result[index].row == oppo.Castle.row) {
+        else if (result[index].col === dark.Castle.col && result[index].row === dark.Castle.row) {
             return _result(result[index].col, result[index].row, result[index].value)
         }
-        else if (result[index].col == oppo.Horse.col && result[index].row == oppo.Horse.row) {
+        else if (result[index].col === dark.Horse.col && result[index].row === dark.Horse.row) {
             return _result(result[index].col, result[index].row, result[index].value)
         }
-        else if (result[index].col == oppo.Bishop.col && result[index].row == oppo.Bishop.row) {
+        else if (result[index].col === dark.Bishop.col && result[index].row === dark.Bishop.row) {
             return _result(result[index].col, result[index].row, result[index].value)
         }
-
     }
     // Không có quân cờ nào ăn được đối thủ => Random
     const after = result[Math.floor(Math.random() * result.length)]

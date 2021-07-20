@@ -46,14 +46,16 @@ export const resolvers = {
 
         const { before, after } = args as { before: { col: number, row: number }, after: { col: number, row: number } }
         console.log(before, after)
+        const kingD = board.find(el => el.value === '♔') as Cell
+        if (!kingD) throw new Error(" king White is die")
         requestLogs.insertOne({ value: 'T move ', before, after })
 
         if (!before) {
-          throw new Error(" Before {}")
+          throw new Error("Before {}")
         }
 
         if (!after) {
-          throw new Error(" after {}")
+          throw new Error("After {}")
         }
 
         console.log("Dark move", after, before)
@@ -64,15 +66,13 @@ export const resolvers = {
 
         pubsub.publish(BOARD_CHANEL, { boardSub: board });
 
-        pubsub.publish(BOARD_CHANEL, { boardSub: board });
-
         setTimeout(async () => {
 
           const { before, after, value } = runWhite()
 
           console.log(before, after)
 
-          await requestLogs.insertOne({ author: 'Cong move', before, after, value })
+          await requestLogs.insertOne({ author: 'C move', before, after, value })
 
           const valueAtBefore = board[before.col * 8 + before.row].value
           board[before.col * 8 + before.row].value = '' // input
@@ -91,7 +91,7 @@ export const resolvers = {
 
           return 'OK'
           //}
-        }, 2000)
+        }, 1000)
         return 'OK'
 
       } catch (error) {

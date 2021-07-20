@@ -1,21 +1,15 @@
 import { BishopOppo } from './bishop';
 import { CastleOppo } from './castle';
 import { HorseOppo } from './horse';
-import { runHorse } from './horse';
-import { ChessLocation } from './resolvers'
-import { board } from './resolvers';
+import { ChessLocation } from './resolvers';
 
 export function runKing(ally: any, oppo: any) {
 
     try {
+        if (!ally) { throw new Error(" ally ____________") }
+        if (!oppo) { throw new Error(" oppo ____________") }
         /*
 
-        Vua di chuyển khỏi bàn cờ ok
-
-        Vua di chuyển bình thường. Không có lỗi ok
-
-        Vua không di chuyển vào đồng đội ok
-    
         */
 
         let resultKing: any[] = []
@@ -37,28 +31,33 @@ export function runKing(ally: any, oppo: any) {
         for (let index = 0; index < move.length; index++) {
             if (ally.King.col + move[index].X >= 0 && ally.King.col + move[index].X <= 7 &&
                 ally.King.row + move[index].Y >= 0 && ally.King.row + move[index].Y <= 7
+
+
             ) {
                 resultKing.push({ col: ally.King.col + move[index].X, row: ally.King.row + move[index].Y })
             }
         }
-
-        const _resultKing : ChessLocation[] =[]
-        _resultKing.concat(resultKing)
 
         /*
         Xoá nước đi trùng đồng minh
         */
 
         for (let index = 0; index < resultKing.length; index++) {
-            if (resultKing[index].col === ally.Horse.col && resultKing[index].row === ally.Horse.row && ally.Horse.del === 0
-                || resultKing[index].col === ally.Bishop.col && resultKing[index].row === ally.Bishop.row && ally.Bishop.del === 0
-                || resultKing[index].col === ally.Castle.col && resultKing[index].row === ally.Castle.row && ally.Castle.del === 0) {
+            if (resultKing[index].col === ally.Horse.col && resultKing[index].row === ally.Horse.row && ally.Horse.del === 0) {
+                resultKing.splice(index, 1, '')
+            }
+            else if (resultKing[index].col === ally.Bishop.col && resultKing[index].row === ally.Bishop.row && ally.Bishop.del === 0) {
+                resultKing.splice(index, 1, '')
+            }
+            else if (resultKing[index].col === ally.Castle.col && resultKing[index].row === ally.Castle.row && ally.Castle.del === 0) {
                 resultKing.splice(index, 1, '')
             }
         }
 
         resultKing = resultKing.filter(Boolean)
-        
+
+        let _resultKing: any[] = []
+        _resultKing = [...resultKing]
 
         /*
         Xoá nước đi nguy hiểm
@@ -69,12 +68,11 @@ export function runKing(ally: any, oppo: any) {
         if (oppo.Castle.del === 0) {
             const { oppoCastle } = CastleOppo(ally, oppo) as {
                 oppoCastle: [ChessLocation]
-
             }
 
             for (let j = 0; j < resultKing.length; j++) {
                 for (let index = 0; index < oppoCastle.length; index++) {
-                    if (resultKing[j].row === oppoCastle[index].row && resultKing[j].col === oppoCastle[index].col) {
+                    if (resultKing[j].col === oppoCastle[index].col && resultKing[j].row === oppoCastle[index].row) {
                         resultKing.splice(j, 1, '')
                     }
                 }
@@ -87,19 +85,17 @@ export function runKing(ally: any, oppo: any) {
         if (oppo.Bishop.del === 0) {
             const { oppoBishop } = BishopOppo(ally, oppo) as {
                 oppoBishop: [ChessLocation]
-
             }
 
             for (let j = 0; j < resultKing.length; j++) {
                 for (let index = 0; index < oppoBishop.length; index++) {
-                    if (resultKing[j].row === oppoBishop[index].row && resultKing[j].col === oppoBishop[index].col) {
+                    if (resultKing[j].col === oppoBishop[index].col && resultKing[j].row === oppoBishop[index].row) {
                         resultKing.splice(j, 1, '')
                     }
                 }
             }
             resultKing = resultKing.filter(Boolean)
         }
-        
 
         // Mã
 
@@ -110,14 +106,14 @@ export function runKing(ally: any, oppo: any) {
 
             for (let j = 0; j < resultKing.length; j++) {
                 for (let index = 0; index < oppoHorse.length; index++) {
-                    if (resultKing[j].row === oppoHorse[index].row && resultKing[j].col === oppoHorse[index].col) {
+                    if (resultKing[j].col === oppoHorse[index].col && resultKing[j].row === oppoHorse[index].row) {
                         resultKing.splice(j, 1, '')
                     }
                 }
             }
             resultKing = resultKing.filter(Boolean)
         }
-        
+
         // Vua
 
         if (oppo.King.del === 0) {
@@ -127,7 +123,7 @@ export function runKing(ally: any, oppo: any) {
 
             for (let j = 0; j < resultKing.length; j++) {
                 for (let index = 0; index < oppoKing.length; index++) {
-                    if (resultKing[j].row === oppoKing[index].row && resultKing[j].col === oppoKing[index].col) {
+                    if (resultKing[j].col === oppoKing[index].col && resultKing[j].row === oppoKing[index].row) {
                         resultKing.splice(j, 1, '')
                     }
                 }
@@ -135,10 +131,8 @@ export function runKing(ally: any, oppo: any) {
             resultKing = resultKing.filter(Boolean)
         }
 
-       
-
         /*
-        
+
         Tiêu diệt quân cờ của đối thủ
 
         */
@@ -167,19 +161,24 @@ export function runKing(ally: any, oppo: any) {
 
         if (resultKing.length > 0) {
             const _data = resultKing[Math.floor(Math.random() * resultKing.length)]
+
+
             if (!_data) {
                 console.log(ally, oppo)
-                console.log(resultKing)
-                throw new Error('Data King is not define')
+                console.log("err", resultKing)
+                throw new Error(" Result Caslte not define ")
             }
             return { col: _data.col, row: _data.row }
+
         } else {
             const _data = _resultKing[Math.floor(Math.random() * _resultKing.length)]
+
             if (!_data) {
                 console.log(ally, oppo)
-                console.log(_resultKing)
-                throw new Error('Data King is not define')
+                console.log("err", _resultKing)
+                throw new Error(" Result Caslte not define ")
             }
+
             return { col: _data.col, row: _data.row }
 
         }

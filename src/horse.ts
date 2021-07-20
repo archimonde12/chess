@@ -6,15 +6,9 @@ import { KingOppo } from "./king";
 export function runHorse(ally: any, oppo: any) {
 
     try {
-        /*
-    
-        Xe di chuyển khỏi bàn cờ ok
-    
-        Xe di chuyển bình thường. Không có lỗi
-    
-        Xe không di chuyển vào đồng đội
-    
-        */
+
+        if (!ally) { throw new Error(" ally") }
+        if (!oppo) { throw new Error(" oppo") }
 
         let resultHorse: any[] = []
 
@@ -28,14 +22,6 @@ export function runHorse(ally: any, oppo: any) {
         { X: - 2, Y: + 1 }]
 
         for (let index = 0; index < move.length; index++) {
-            if (ally.Horse.col + move[index].X === oppo.King.col && ally.Horse.row + move[index].Y === oppo.King.row) {
-                return {
-                    col: ally.Horse.col + move[index].X, row: ally.Horse.row + move[index].Y
-                }
-            }
-        }
-
-        for (let index = 0; index < move.length; index++) {
             if (ally.Horse.col + move[index].X >= 0 && ally.Horse.col + move[index].X <= 7 &&
                 ally.Horse.row + move[index].Y >= 0 && ally.Horse.row + move[index].Y <= 7
             ) {
@@ -43,26 +29,34 @@ export function runHorse(ally: any, oppo: any) {
             }
         }
 
+        console.log(" ma", resultHorse)
+
         /*
-        Xoá nước đi trùng đồng minh
+    
+        Xoá nước trùng đồng minh
+    
         */
 
         for (let index = 0; index < resultHorse.length; index++) {
-            if (resultHorse[index].col === ally.King.col && resultHorse[index].row === ally.King.row && ally.King.del === 0
-                || resultHorse[index].col === ally.Bishop.col && resultHorse[index].row === ally.Bishop.row && ally.Bishop.del === 0
-                || resultHorse[index].col === ally.Castle.col && resultHorse[index].row === ally.Castle.row && ally.Castle.del === 0) {
+            if (resultHorse[index].col === ally.King.col && resultHorse[index].row === ally.King.row && ally.King.row === 0) {
+                resultHorse.splice(index, 1, '')
+            }
+            else if (resultHorse[index].col === ally.Bishop.col && resultHorse[index].row === ally.Bishop.row && ally.Bishop.row === 0) {
+                resultHorse.splice(index, 1, '')
+            }
+            else if (resultHorse[index].col === ally.Castle.col && resultHorse[index].row === ally.Castle.row && ally.Castle.row === 0) {
                 resultHorse.splice(index, 1, '')
             }
         }
 
         resultHorse = resultHorse.filter(Boolean)
 
+        let _resultHorse: any[] = []
+        _resultHorse = [...resultHorse]
+
         /*
         Xoá nước đi nguy hiểm
         */
-
-        const _resultHorse: ChessLocation[] = []
-        _resultHorse.concat(resultHorse)
 
         // Xe
 
@@ -155,33 +149,34 @@ export function runHorse(ally: any, oppo: any) {
         }
 
         if (resultHorse.length > 0) {
+
             const _data = resultHorse[Math.floor(Math.random() * resultHorse.length)]
 
             if (!_data) {
                 console.log(ally, oppo)
                 console.log("err", resultHorse)
-                throw new Error(" Result Caslte not define ")
+                throw new Error(" Result Horse not define ")
             }
-
             return { col: _data.col, row: _data.row }
 
         } else {
+
             const _data = _resultHorse[Math.floor(Math.random() * _resultHorse.length)]
 
             if (!_data) {
                 console.log(ally, oppo)
-                console.log("err", resultHorse)
-                throw new Error(" Result Caslte not define ")
+                console.log("err", _resultHorse)
+                throw new Error(" Result Horse not define ")
             }
 
             return { col: _data.col, row: _data.row }
+
         }
 
     } catch (error) {
         console.log(error)
 
     }
-
 }
 
 export function HorseOppo(ally: any, oppo: any) {
