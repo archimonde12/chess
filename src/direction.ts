@@ -6,14 +6,14 @@ import { runHorse } from './horse';
 import { runKing } from './king';
 import { runDark } from './runDark';
 
-var white = {
+export var white = {
     Castle: { col: 0, row: 0, del: 0, value: '♖' },
     Horse: { col: 1, row: 0, del: 0, value: '♘' },
     Bishop: { col: 2, row: 0, del: 0, value: '♗' },
     King: { col: 3, row: 0, del: 0, value: '♔' },
 }
 
-var dark = {
+export var dark = {
     Castle: { col: 7, row: 7, del: 0, value: '♜' },
     Horse: { col: 6, row: 7, del: 0, value: '♞' },
     Bishop: { col: 5, row: 7, del: 0, value: '♝' },
@@ -77,7 +77,7 @@ export function runWhite() {
         dark.Castle.del = 1
     }
 
-    
+
     if (kingW) {
         white.King.row = kingW.row
         white.King.col = kingW.col
@@ -114,6 +114,8 @@ export function runWhite() {
 
     // let ally = white
     // let oppo = dark
+
+    
 
     console.log('Quân cờ đang gặp nguy hiểm', _runDark)
 

@@ -27,17 +27,8 @@ export function runCastle(ally: any, oppo: any) {
                 break
             }
             if (R1 !== ally.Castle.row) {
-
                 resultCastle.push({ col: ally.Castle.col, row: R1 })
             }
-
-            if (ally.Castle.col === oppo.King.col && R1 === oppo.King.row) { return { col: ally.Castle.col, row: R1 } }
-
-            if (ally.Castle.col === oppo.Castle.col && R1 === oppo.Castle.row && oppo.Castle.del === 0) { return { col: ally.Castle.col, row: R1 } }
-
-            if (ally.Castle.col === oppo.Horse.col && R1 === oppo.Horse.row && oppo.Horse.del === 0) { return { col: ally.Castle.col, row: R1 } }
-
-            if (ally.Castle.col === oppo.Bishop.col && R1 === oppo.Bishop.row && oppo.Bishop.del === 0) { return { col: ally.Castle.col, row: R1 } }
 
             R1++
         }
@@ -56,17 +47,8 @@ export function runCastle(ally: any, oppo: any) {
                 break
             }
             if (R5 !== ally.Castle.row) {
-
                 resultCastle.push({ col: ally.Castle.col, row: R5 })
-
             }
-            if (R5 === oppo.King.row && ally.Castle.col === oppo.King.col) { return { col: ally.Castle.col, row: R5 } }
-
-            if (ally.Castle.col === oppo.Castle.col && R5 === oppo.Castle.row && oppo.Castle.del === 0) { return { col: ally.Castle.col, row: R5 } }
-
-            if (ally.Castle.col === oppo.Horse.col && R5 === oppo.Horse.row && oppo.Horse.del === 0) { return { col: ally.Castle.col, row: R5 } }
-
-            if (ally.Castle.col === oppo.Bishop.col && R5 === oppo.Bishop.row && oppo.Bishop.del == 0) { return { col: ally.Castle.col, row: R5 } }
 
             R5--
 
@@ -86,17 +68,8 @@ export function runCastle(ally: any, oppo: any) {
                 break
             }
             if (C2 !== ally.Castle.col) {
-
                 resultCastle.push({ col: C2, row: ally.Castle.row })
-
             }
-            if (ally.Castle.row === oppo.King.row && C2 === oppo.King.col) { return { col: C2, row: ally.Castle.row } }
-
-            if (ally.Castle.row === oppo.Castle.row && C2 === oppo.Castle.col && oppo.Castle.del === 0) { return { col: C2, row: ally.Castle.row } }
-
-            if (ally.Castle.row === oppo.Horse.row && C2 === oppo.Horse.col && oppo.Horse.del === 0) { return { col: C2, row: ally.Castle.row } }
-
-            if (ally.Castle.row === oppo.Bishop.row && C2 === oppo.Bishop.col && oppo.Bishop.del === 0) { return { col: C2, row: ally.Castle.row } }
 
             C2++
         }
@@ -114,22 +87,11 @@ export function runCastle(ally: any, oppo: any) {
                 break
             }
             if (C6 !== ally.Castle.col) {
-
                 resultCastle.push({ col: C6, row: ally.Castle.row })
-
             }
-
-            if (ally.Castle.row === oppo.King.row && C6 === oppo.King.col) { return { col: C6, row: ally.Castle.row } }
-
-            if (ally.Castle.row === oppo.Castle.row && C6 === oppo.Castle.col && oppo.Castle.del === 0) { return { col: C6, row: ally.Castle.row } }
-
-            if (ally.Castle.row === oppo.Horse.row && C6 === oppo.Horse.col && oppo.Horse.del === 0) { return { col: C6, row: ally.Castle.row } }
-
-            if (ally.Castle.row === oppo.Bishop.row && C6 === oppo.Bishop.col && oppo.Bishop.del === 0) { return { col: C6, row: ally.Castle.row } }
 
             C6--
         }
-        console.log("xe", resultCastle)
 
         let _resultCastle: ChessLocation[] = []
         _resultCastle = [...resultCastle]
@@ -160,7 +122,6 @@ export function runCastle(ally: any, oppo: any) {
         if (oppo.Bishop.del === 0) {
             const { oppoBishop } = BishopOppo(ally, oppo) as {
                 oppoBishop: [ChessLocation]
-
             }
 
             for (let j = 0; j < resultCastle.length; j++) {
@@ -207,10 +168,23 @@ export function runCastle(ally: any, oppo: any) {
                 }
             }
             resultCastle = resultCastle.filter(Boolean)
-
         }
 
-        //console.log("result", result)
+        for (let index = 0; index < resultCastle.length; index++) {
+            if (resultCastle[index].col === oppo.King.col && resultCastle[index].row === oppo.King.row && oppo.King.del === 0) {
+                return { col: resultCastle[index].col, row: resultCastle[index].row }
+            }
+            if (resultCastle[index].col === oppo.Castle.col && resultCastle[index].row === oppo.Castle.row && oppo.Castle.del === 0) {
+                return { col: resultCastle[index].col, row: resultCastle[index].row }
+            }
+            if (resultCastle[index].col === oppo.Horse.col && resultCastle[index].row === oppo.Horse.row && oppo.Horse.del === 0) {
+                return { col: resultCastle[index].col, row: resultCastle[index].row }
+            }
+            if (resultCastle[index].col === oppo.Bishop.col && resultCastle[index].row === oppo.Bishop.row && oppo.Bishop.del === 0) {
+                return { col: resultCastle[index].col, row: resultCastle[index].row }
+            }
+        }
+
         if (resultCastle.length > 0) {
             const result = resultCastle[Math.floor((Math.random()) * resultCastle.length)]
             if (!result) {

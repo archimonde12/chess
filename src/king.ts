@@ -14,6 +14,8 @@ export function runKing(ally: any, oppo: any) {
 
         let resultKing: any[] = []
 
+        let moves: any[] = []
+
         const move = [
             { X: - 1, Y: + 1 },
             { X: - 1, Y: - 1 },
@@ -31,10 +33,8 @@ export function runKing(ally: any, oppo: any) {
         for (let index = 0; index < move.length; index++) {
             if (ally.King.col + move[index].X >= 0 && ally.King.col + move[index].X <= 7 &&
                 ally.King.row + move[index].Y >= 0 && ally.King.row + move[index].Y <= 7
-
-
             ) {
-                resultKing.push({ col: ally.King.col + move[index].X, row: ally.King.row + move[index].Y })
+                moves.push({ col: ally.King.col + move[index].X, row: ally.King.row + move[index].Y })
             }
         }
 
@@ -42,22 +42,23 @@ export function runKing(ally: any, oppo: any) {
         Xoá nước đi trùng đồng minh
         */
 
-        for (let index = 0; index < resultKing.length; index++) {
-            if (resultKing[index].col === ally.Horse.col && resultKing[index].row === ally.Horse.row && ally.Horse.del === 0) {
-                resultKing.splice(index, 1, '')
+        for (let index = 0; index < moves.length; index++) {
+            if (moves[index].col === ally.Horse.col && moves[index].row === ally.Horse.row && ally.Horse.del === 0) {
+                moves.splice(index, 1, '')
             }
-            else if (resultKing[index].col === ally.Bishop.col && resultKing[index].row === ally.Bishop.row && ally.Bishop.del === 0) {
-                resultKing.splice(index, 1, '')
+            else if (moves[index].col === ally.Bishop.col && moves[index].row === ally.Bishop.row && ally.Bishop.del === 0) {
+                moves.splice(index, 1, '')
             }
-            else if (resultKing[index].col === ally.Castle.col && resultKing[index].row === ally.Castle.row && ally.Castle.del === 0) {
-                resultKing.splice(index, 1, '')
+            else if (moves[index].col === ally.Castle.col && moves[index].row === ally.Castle.row && ally.Castle.del === 0) {
+                moves.splice(index, 1, '')
             }
         }
 
         resultKing = resultKing.filter(Boolean)
 
         let _resultKing: any[] = []
-        _resultKing = [...resultKing]
+        _resultKing = [...moves]
+        resultKing = [...moves]
 
         /*
         Xoá nước đi nguy hiểm
@@ -132,9 +133,7 @@ export function runKing(ally: any, oppo: any) {
         }
 
         /*
-
         Tiêu diệt quân cờ của đối thủ
-
         */
 
         for (let index = 0; index < resultKing.length; index++) {
@@ -150,13 +149,11 @@ export function runKing(ally: any, oppo: any) {
             if (resultKing[index].col === oppo.Bishop.col && resultKing[index].row === oppo.Bishop.row && oppo.Bishop.del === 0) {
                 return { col: resultKing[index].col, row: resultKing[index].row }
             }
-
         }
 
         /*
         Trả về kết quả
         Nếu hết nước đi => Đầu hàng
-
         */
 
         if (resultKing.length > 0) {
@@ -172,6 +169,7 @@ export function runKing(ally: any, oppo: any) {
 
         } else {
             const _data = _resultKing[Math.floor(Math.random() * _resultKing.length)]
+            console.log("Vua bị vây")
 
             if (!_data) {
                 console.log(ally, oppo)

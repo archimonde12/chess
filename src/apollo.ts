@@ -20,4 +20,3 @@ export const initApollo = async () => {
         throw e
     }
 }
-

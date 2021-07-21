@@ -43,6 +43,14 @@ export function runDark(white: any, dark: any) {
     /*
     Tìm quân cờ bị ăn
     */
+    if (white.King.col === dark.Castle.col && dark.Castle.del == 0) {
+        console.log(".Castle")
+        return "King"
+    }
+    if (white.King.row === dark.Castle.row && dark.Castle.del == 0) {
+        console.log("Castle .")
+        return "King"
+    }
 
     for (let index = 0; index < result.length; index++) {
 

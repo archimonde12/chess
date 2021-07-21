@@ -8,6 +8,7 @@ export const pubsub = new PubSub();
 export const BOARD_CHANEL = 'UPDATED_BOARD';
 import { assertNonNullType } from 'graphql';
 import {runWhite} from './direction'
+import { CheckChess } from './checkChess';
 
 export type Cell = {
   col: number
@@ -48,6 +49,8 @@ export const resolvers = {
         console.log(before, after)
         const kingD = board.find(el => el.value === '♔') as Cell
         if (!kingD) throw new Error(" king White is die")
+        
+
         requestLogs.insertOne({ value: 'T move ', before, after })
 
         if (!before) {
@@ -65,7 +68,9 @@ export const resolvers = {
         board[after.col * 8 + after.row].value = valueAtBefore
 
         pubsub.publish(BOARD_CHANEL, { boardSub: board });
-
+        // const checkChess = CheckChess(before, after)
+        // console.log(checkChess)
+        
         setTimeout(async () => {
 
           const { before, after, value } = runWhite()
@@ -91,7 +96,7 @@ export const resolvers = {
 
           return 'OK'
           //}
-        }, 1000)
+        }, 2000)
         return 'OK'
 
       } catch (error) {
