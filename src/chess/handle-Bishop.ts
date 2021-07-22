@@ -30,7 +30,7 @@ export const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
           (el) =>
             el.col === before.col + i &&
             el.row === before.row + i &&
-            el.value !== ""
+            el.value !== ''
         )
       ) {
         return false;
@@ -43,7 +43,7 @@ export const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
           (el) =>
             el.col === before.col - i &&
             el.row === before.row - i &&
-            el.value !== ""
+            el.value !== ''
         )
       ) {
         return false;
@@ -56,7 +56,7 @@ export const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
           (el) =>
             el.col === before.col + i &&
             el.row === before.row - i &&
-            el.value !== ""
+            el.value !== ''
         )
       ) {
         return false;
@@ -69,7 +69,7 @@ export const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
           (el) =>
             el.col === before.col - i &&
             el.row === before.row + i &&
-            el.value !== ""
+            el.value !== ''
         )
       ) {
         return false;
@@ -81,7 +81,7 @@ export const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
   return true;
 };
 export const checkBishopWin = (ChessBlacks: Array<Cell>) => {
-  const bishop = board.find((el) => el.value === "♗") as Cell;
+  const bishop = board.find((el) => el.value === '♗') as Cell;
   if (bishop) {
     for (let i = -7; i < 8; i++) {
       for (let chessBlack of ChessBlacks) {

@@ -67,11 +67,11 @@ export const kingMove = (col: number, row: number) => {
       };
     }
   }
-  console.log("Hết đường đi!");
-  return "Black win!";
+  console.log('Hết đường đi!');
+  return 'Black win!';
 };
 export const checkKingWin = (ChessBlacks: Array<Cell>) => {
-  const king = board.find((el) => el.value === "♔") as Cell;
+  const king = board.find((el) => el.value === '♔') as Cell;
   for (let locationKing of Kxy) {
     for (let ChessBlack of ChessBlacks) {
       let u = king.col + locationKing.x;

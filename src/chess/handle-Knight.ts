@@ -20,7 +20,7 @@ export const Hxy = [
   { x: 2, y: 1 },
 ];
 export const checkKnightWin = (ChessBlacks: Array<Cell>) => {
-  const knight = board.find((el) => el.value === "♘") as Cell;
+  const knight = board.find((el) => el.value === '♘') as Cell;
   if (knight) {
     for (let locationKnight of Hxy) {
       for (let chessBlack of ChessBlacks) {
@@ -88,6 +88,6 @@ export const knightMove = (col: number, row: number) => {
     }
   }
   const { newCol, newRow } = arrLocation[Math.floor(Math.random() *arrLocation.length)]
-  console.log("Mã hết đường đi!");
+  console.log('Mã hết đường đi!');
   return { newCol, newRow};
 };

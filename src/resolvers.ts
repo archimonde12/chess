@@ -1,25 +1,25 @@
-import { PubSub } from "apollo-server";
-import { changeLocationChess, chooseChessPieces } from "./chess/handleMove";
-import { checkBishopMoveIsInvalid } from "./chess/handle-Bishop";
-import { kingMove, Kxy } from "./chess/handle-King";
-import { Hxy } from "./chess/handle-Knight";
-import { rookMoveIsInvalid } from "./chess/handle-Rook";
-import { Cell, locationMove, newLocation } from "./chess/type";
-import { requestLogs } from "./mongo";
+import { PubSub } from 'apollo-server';
+import { changeLocationChess, chooseChessPieces } from './chess/handleMove';
+import { checkBishopMoveIsInvalid } from './chess/handle-Bishop';
+import { kingMove, Kxy } from './chess/handle-King';
+import { Hxy } from './chess/handle-Knight';
+import { rookMoveIsInvalid } from './chess/handle-Rook';
+import { Cell, locationMove, newLocation } from './chess/type';
+import { requestLogs } from './mongo';
 import {
   initBoard,
   sendRequestResumeToServer,
   sendRequestStopGameToServer,
   sendRequestToServer,
-} from "./util";
+} from './util';
 export const pubsub = new PubSub();
-export const BOARD_CHANEL = "UPDATED_BOARD";
+export const BOARD_CHANEL = 'UPDATED_BOARD';
 
 export const arrRand = [0, 1, 2, 3, 4, 5, 6, 7];
-export const iconChessBlacks = ["♚", "♜", "♞", "♝"];
-export const iconChessWhites = ["♔", "♖", "♘", "♗"];
+export const iconChessBlacks = ['♚', '♜', '♞', '♝'];
+export const iconChessWhites = ['♔', '♖', '♘', '♗'];
 
-var isWin = "";
+var isWin = '';
 var is_game_stop = false;
 var who_next: string;
 
@@ -30,7 +30,7 @@ export let board: Cell[] = (() => {
       result.push({
         col,
         row,
-        value: "",
+        value: '',
       });
     }
   }
@@ -52,7 +52,7 @@ export const checkMove_RookIsWin = (
   row: number,
   chess: String
 ): boolean => {
-  const rook = board.find((el) => el.value === "♜") as Cell;
+  const rook = board.find((el) => el.value === '♜') as Cell;
   if (rook) {
     if (
       (col === rook.col && row !== rook.row) ||
@@ -74,7 +74,7 @@ export const checkMove_RookIsWin = (
   return true;
 };
 export const checkMove_BishopIsWin = (col: number, row: number): boolean => {
-  const bishop = board.find((el) => el.value === "♝") as Cell;
+  const bishop = board.find((el) => el.value === '♝') as Cell;
   if (bishop) {
     for (let i = -7; i < 8; i++) {
       if (col + i == bishop.col && row + i == bishop.row && i != 0) {
@@ -101,7 +101,7 @@ export const checkMove_BishopIsWin = (col: number, row: number): boolean => {
   return true;
 };
 export const checkMove_KnightIsWin = (col: number, row: number) => {
-  const knight = board.find((el) => el.value === "♞") as Cell;
+  const knight = board.find((el) => el.value === '♞') as Cell;
   let isCheck = true;
   if (knight) {
     Hxy.forEach((element) => {
@@ -116,7 +116,7 @@ export const checkMove_KnightIsWin = (col: number, row: number) => {
   return isCheck;
 };
 export const checkMove_KingIsWin = (col: number, row: number) => {
-  const king = board.find((el) => el.value === "♚") as Cell;
+  const king = board.find((el) => el.value === '♚') as Cell;
   if (king) {
     for (let element of Kxy) {
       const u = king.col + element.x;
@@ -146,32 +146,32 @@ export const resolvers = {
     chessMove: async (parent, args: locationMove, ctx, info) => {
       try {
         if (is_game_stop) {
-          who_next = "enemy";
-          console.log("-------------GAME STOP--------------");
-          return "Game stop";
+          who_next = 'enemy';
+          console.log('-------------GAME STOP--------------');
+          return 'Game stop';
         }
         // Request
         const { before, after } = args;
         console.log(before, after);
         // Lưu lại tọa độ di chuyển của đối thủ
-        await requestLogs.insertOne({ content: "Black move", before, after });
+        await requestLogs.insertOne({ content: 'Black move', before, after });
         // Kiểm tra có quân cờ hay không
         const isChessMan = board.find(
           (el) => el.col === before.col && el.row === before.row
         ) as Cell;
-        if (isChessMan.value === "") {
-          throw new Error("Không có quân cờ ở vị trí xuất phát");
+        if (isChessMan.value === '') {
+          throw new Error('Không có quân cờ ở vị trí xuất phát');
         }
         changeLocationChess({ before, after });
         who_next = "my";
         //Xử lý nước đi tiếp theo của mình=> gửi nước đi tiếp theo cho server đối thủ => Lưu log cái request gửi đi
         //Trả kết quả
-        const locationKing = board.find((el) => el.value === "♔") as Cell;
-        const chessWhites = getChessMan(["♖", "♘", "♗"]).concat();
+        const locationKing = board.find((el) => el.value === '♔') as Cell;
+        const chessWhites = getChessMan(['♖', '♘', '♗']).concat();
         const chessBlacks = getChessMan(iconChessBlacks).concat();
         if (!locationKing) {
-          console.log("You Lose!");
-          return "Black win!";
+          console.log('You Lose!');
+          return 'Black win!';
         }
         if (
           !checkMove_RookIsWin(
@@ -190,7 +190,7 @@ export const resolvers = {
           var col = locationKing.col;
           var row = locationKing.row;
           if (!newCol && !newRow) {
-            console.log("You lose!");
+            console.log('You lose!');
             return kingMove(locationKing.col, locationKing.row);
           }
         } else {
@@ -200,7 +200,7 @@ export const resolvers = {
           ) as { col: number; row: number; newCol: number; newRow: number };
         }
         
-        console.log("request: ", col, row, newCol, newRow);
+        console.log('request: ', col, row, newCol, newRow);
         // Gửi request chessMove ở sever của công
 
         setTimeout(() => {
@@ -217,28 +217,28 @@ export const resolvers = {
               // });
               throw response.errors;
             }
-            if (data === "Game stop") {
-              console.log("----------------GAME STOP-----------------");
+            if (data === 'Game stop') {
+              console.log('----------------GAME STOP-----------------');
               return data;
             }
-            if (data === "White win!") {
+            if (data === 'White win!') {
               isWin = data;
               requestLogs.insertOne({ status: data, board });
             }
-            who_next = "enemy";
+            who_next = 'enemy';
             changeLocationChess({
               before: { col, row },
               after: { col: newCol, row: newRow },
             });
             requestLogs.insertOne({
-              content: "White move",
+              content: 'White move',
               before: { col, row },
               after: { col: newCol, row: newRow },
             });
           });
         }, 1000);
 
-        return "OK";
+        return 'OK';
       } catch (error) {
         requestLogs.insertOne({ status: 500, error: error.message, board });
         console.log(error);
@@ -247,12 +247,12 @@ export const resolvers = {
     },
     start: async () => {
       try {
-        const locationKing = board.find((el) => el.value === "♔") as Cell;
-        const chessWhites = getChessMan(["♖", "♘", "♗"]).concat();
+        const locationKing = board.find((el) => el.value === '♔') as Cell;
+        const chessWhites = getChessMan(['♖', '♘', '♗']).concat();
         const chessBlacks = getChessMan(iconChessBlacks).concat();
         if (!locationKing) {
-          console.log("You Lose!");
-          return "Black win!";
+          console.log('You Lose!');
+          return 'Black win!';
         }
         console.log(chessWhites);
         if (
@@ -281,7 +281,7 @@ export const resolvers = {
           ) as { col: number; row: number; newCol: number; newRow: number };
         }
         
-        console.log("request: ", col, row, newCol, newRow);
+        console.log('request: ', col, row, newCol, newRow);
         // Gửi request chessMove ở sever của công
         sendRequestToServer({
           before: { col: col, row: row },
@@ -291,21 +291,21 @@ export const resolvers = {
           if (response.errors) {
             throw response.errors;
           }
-          if (response.data.chessMove === "White win!") {
+          if (response.data.chessMove === 'White win!') {
             requestLogs.insertOne({ status: response.data.chessMove, board });
           }
-          who_next = "enemy";
+          who_next = 'enemy';
           changeLocationChess({
             before: { col, row },
             after: { col: newCol, row: newRow },
           });
           requestLogs.insertOne({
-            content: "White move",
+            content: 'White move',
             before: { col, row },
             after: { col: newCol, row: newRow },
           });
         });
-        return "OK";
+        return 'OK';
       } catch (error) {
         requestLogs.insertOne({ status: 500, error: error.message, board });
         console.log(error);
@@ -313,7 +313,7 @@ export const resolvers = {
       }
     },
     boardInit: (parent, args, ctx, info) => {
-      console.log("-------------RESTART--------------");
+      console.log('-------------RESTART--------------');
       is_game_stop = false;
       const { init } = args as {
         init: { col: number; row: number; value: String }[];
@@ -337,34 +337,34 @@ export const resolvers = {
       return board;
     },
     newGame: () => {
-      isWin = "";
+      isWin = '';
       resolvers.Mutation.stop();
       initBoard();
-      return "OK";
+      return 'OK';
     },
     stop: () => {
       if (!is_game_stop) {
         is_game_stop = true;
         return sendRequestStopGameToServer().then((response) => {
           console.log(response);
-          return "OK";
+          return 'OK';
         });
       }
-      return "OK";
+      return 'OK';
     },
     resume: async () => {
       if (is_game_stop) {
-        console.log("--------------RESUME GAME----------------");
+        console.log('--------------RESUME GAME----------------');
         is_game_stop = false;
         await sendRequestResumeToServer().then((response) => {
           console.log(response);
-          return "OK";
+          return 'OK';
         });
-        if (who_next === "my") {
+        if (who_next === 'my') {
           resolvers.Mutation.start();
         }
       }
-      return "OK";
+      return 'OK';
     },
   },
   Subscription: {

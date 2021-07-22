@@ -48,7 +48,7 @@ export const rookMoveIsInvalid = (location: locationMove, chess: String): boolea
     for (let el of arr) {
       if (
         board.find(
-          (ele) => ele.col === before.col && ele.row === el && ele.value !== "" && ele.value !== chess
+          (ele) => ele.col === before.col && ele.row === el && ele.value !== '' && ele.value !== chess
         )
       ) {
         return false;
@@ -58,7 +58,7 @@ export const rookMoveIsInvalid = (location: locationMove, chess: String): boolea
     for (let el of arr) {
       if (
         board.find(
-          (ele) => ele.row === before.row && ele.col === el && ele.value !== "" && ele.value !== chess
+          (ele) => ele.row === before.row && ele.col === el && ele.value !== '' && ele.value !== chess
         )
       ) {
         return false;
@@ -99,7 +99,7 @@ export const rookMove = (col: number, row: number) => {
   return false;
 };
 export const checkRookWin = (ChessBlacks: Array<Cell>) => {
-  const rook = board.find((el) => el.value === "♖") as Cell;
+  const rook = board.find((el) => el.value === '♖') as Cell;
   if (rook) {
     for (let chessBlack of ChessBlacks) {
       if (chessBlack.col === rook.col || chessBlack.row === rook.row) {

@@ -13,7 +13,7 @@ import { Cell, locationMove, newLocation } from "./type";
 
 export const changeLocationChess = (value: locationMove) => {
   const valueAtBefore = board[value.before.col * 8 + value.before.row].value;
-  board[value.before.col * 8 + value.before.row].value = "";
+  board[value.before.col * 8 + value.before.row].value = '';
   board[value.after.col * 8 + value.after.row].value = valueAtBefore;
   // pubsub.publish(BOARD_CHANEL, { boardSub: board });
 };
@@ -27,11 +27,11 @@ export const chooseChessPieces = (
     newCol: number;
     newRow: number;
   };
-  const rook = board.find((el) => el.value === "♖");
-  const rookBlack = board.find((el) => el.value === "♜");
-  const king = board.find((el) => el.value === "♔");
-  const kningt = board.find((el) => el.value === "♘");
-  const bishop = board.find((el) => el.value === "♗");
+  const rook = board.find((el) => el.value === '♖');
+  const rookBlack = board.find((el) => el.value === '♜');
+  const king = board.find((el) => el.value === '♔');
+  const kningt = board.find((el) => el.value === '♘');
+  const bishop = board.find((el) => el.value === '♗');
   if (checkKingWin(chessBlacks)) {
     var { col, row, newCol, newRow } = checkKingWin(chessBlacks) as newLoca;
   } else if (checkRookWin(chessBlacks)) {
@@ -57,7 +57,7 @@ export const chooseChessPieces = (
     var row = rook.row;
   } else if (
     kningt &&
-    ((!checkMove_RookIsWin(kningt.col, kningt.row, "") &&
+    ((!checkMove_RookIsWin(kningt.col, kningt.row, '') &&
       king &&
       rookBlack &&
       king.col !== rookBlack.col &&
@@ -72,7 +72,7 @@ export const chooseChessPieces = (
     var row = kningt.row;
   } else if (
     bishop &&
-    ((!checkMove_RookIsWin(bishop.col, bishop.row, "") &&
+    ((!checkMove_RookIsWin(bishop.col, bishop.row, '') &&
       king &&
       rookBlack &&
       king.col !== rookBlack.col &&
@@ -90,21 +90,21 @@ export const chooseChessPieces = (
     var col = rand.col;
     var row = rand.row;
     switch (rand.value) {
-      case "♖":
+      case '♖':
         var { newCol, newRow } = rookMove(rand.col, rand.row) as newLocation;
         break;
-      case "♔":
+      case '♔':
         var { newCol, newRow } = kingMove(rand.col, rand.row) as newLocation;
         break;
-      case "♘":
+      case '♘':
         var { newCol, newRow } = knightMove(rand.col, rand.row) as newLocation;
         break;
-      case "♗":
+      case '♗':
         var { newCol, newRow } = bishopMove(rand.col, rand.row) as newLocation;
         break;
     }
     if (!newCol && !newRow && chessWhites.length > 1) {
-      console.log("------------load lại");
+      console.log('------------load lại');
       return chooseChessPieces(chessWhites, chessBlacks);
     }
   }
