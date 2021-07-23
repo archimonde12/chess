@@ -1,8 +1,8 @@
 import { PubSub } from 'apollo-server';
 import { changeLocationChess, chooseChessPieces } from './chess/handleMove';
 import { checkBishopMoveIsInvalid } from './chess/handle-Bishop';
-import { kingMove, Kxy } from './chess/handle-King';
-import { Hxy } from './chess/handle-Knight';
+import { checkKingMoveIsInvalid, kingMove, Kxy } from './chess/handle-King';
+import { checkKnightMoveIsInvalid, Hxy } from './chess/handle-Knight';
 import { rookMoveIsInvalid } from './chess/handle-Rook';
 import { Cell, locationMove, newLocation } from './chess/type';
 import { requestLogs } from './mongo';
@@ -12,12 +12,13 @@ import {
   sendRequestStopGameToServer,
   sendRequestToServer,
 } from './util';
+import { checkQueenMoveIsInvalid } from './chess/handle-Queen';
 export const pubsub = new PubSub();
 export const BOARD_CHANEL = 'UPDATED_BOARD';
 
 export const arrRand = [0, 1, 2, 3, 4, 5, 6, 7];
-export const iconChessBlacks = ['♚', '♜', '♞', '♝'];
-export const iconChessWhites = ['♔', '♖', '♘', '♗'];
+export const iconChessBlacks = ['♚', '♜', '♞', '♝', '♛'];
+export const iconChessWhites = ['♔', '♖', '♘', '♗', '♕'];
 
 var isWin = '';
 var is_game_stop = false;
@@ -100,6 +101,41 @@ export const checkMove_BishopIsWin = (col: number, row: number): boolean => {
   }
   return true;
 };
+export const checkMove_QueenIsWin = (col: number, row: number, chess: String): boolean => {
+  const queen = board.find((el) => el.value === '♛') as Cell;
+  if (queen) {
+    if (
+      (col === queen.col && row !== queen.row) ||
+      (row === queen.row && col !== queen.col)
+    ) {
+      if (
+        checkQueenMoveIsInvalid(
+          {
+            before: { col, row },
+            after: { col: queen.col, row: queen.row },
+          },
+          chess
+        )
+      ) {
+        return false;
+      }
+    }
+    const rangeCol = queen.col > col ? queen.col - col : col - queen.col;
+    const rangeRow = queen.row > row ? queen.row - row : row - queen.row;
+    if ( rangeCol === rangeRow) {
+      if(checkQueenMoveIsInvalid(
+        {
+          before: { col, row },
+          after: { col: queen.col, row: queen.row },
+        },
+        chess
+      )) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
 export const checkMove_KnightIsWin = (col: number, row: number) => {
   const knight = board.find((el) => el.value === '♞') as Cell;
   let isCheck = true;
@@ -159,15 +195,45 @@ export const resolvers = {
         const isChessMan = board.find(
           (el) => el.col === before.col && el.row === before.row
         ) as Cell;
+        // switch(isChessMan.value) {
+        //   case '♜':
+        //     if(!rookMoveIsInvalid({before, after}, '')) {
+        //       console.log('Xe đen di chuyển không hợp lệ!');
+        //       throw new Error('Xe đen di chuyển không hợp lệ!');
+        //     }
+        //     break;
+        //   case '♚':
+        //     if(!checkKingMoveIsInvalid({before, after})) {
+        //       console.log('King đen di chuyển không hợp lệ!');
+        //       throw new Error('King đen di chuyển không hợp lệ!')
+        //     }
+        //     break;
+        //   case '♞':
+        //     if(!checkKnightMoveIsInvalid({before, after})) {
+        //       console.log('Mã đen di chuyển không hợp lệ!');
+        //       throw new Error('Mã đen di chuyển không hợp lệ!')
+        //     }
+        //     break;
+        //   case '♝':
+        //     if(!checkBishopMoveIsInvalid({before, after})) {
+        //       console.log('Tượng đen di chuyển không hợp lệ!');
+        //       throw new Error('Tượng đen di chuyển không hợp lệ!')
+        //     }
+        //     break;
+        //   default:
+        //     console.log('Không có quân cờ nào ở vị trí xuất phát!')
+        //     throw new Error('Không có quân cờ nào ở vị trí xuất phát!');
+        // }
         if (isChessMan.value === '') {
-          throw new Error('Không có quân cờ ở vị trí xuất phát');
+          console.log('Không có quân cờ nào ở vị trí xuất phát!')
+          throw new Error('Không có quân cờ nào ở vị trí xuất phát!');
         }
         changeLocationChess({ before, after });
         who_next = "my";
         //Xử lý nước đi tiếp theo của mình=> gửi nước đi tiếp theo cho server đối thủ => Lưu log cái request gửi đi
         //Trả kết quả
         const locationKing = board.find((el) => el.value === '♔') as Cell;
-        const chessWhites = getChessMan(['♖', '♘', '♗']).concat();
+        const chessWhites = getChessMan(iconChessWhites).concat();
         const chessBlacks = getChessMan(iconChessBlacks).concat();
         if (!locationKing) {
           console.log('You Lose!');
@@ -181,6 +247,7 @@ export const resolvers = {
           ) ||
           !checkMove_KnightIsWin(locationKing.col, locationKing.row) ||
           !checkMove_BishopIsWin(locationKing.col, locationKing.row) ||
+          !checkMove_QueenIsWin(locationKing.col, locationKing.row, locationKing.value) || 
           chessWhites.length < 1
         ) {
           var { newCol, newRow } = kingMove(
@@ -236,7 +303,7 @@ export const resolvers = {
               after: { col: newCol, row: newRow },
             });
           });
-        }, 1000);
+        }, 100);
 
         return 'OK';
       } catch (error) {

@@ -3,6 +3,7 @@ import {
   checkMove_BishopIsWin,
   checkMove_KingIsWin,
   checkMove_KnightIsWin,
+  checkMove_QueenIsWin,
   checkMove_RookIsWin,
   getChessMan,
   iconChessWhites,
@@ -85,6 +86,7 @@ export const rookMove = (col: number, row: number) => {
         checkMove_KnightIsWin(newCol, newRow) &&
         checkMove_BishopIsWin(newCol, newRow) &&
         checkMove_KingIsWin(newCol, newRow) &&
+        checkMove_QueenIsWin(newCol, newRow, '') &&
         rookMoveIsInvalid({
           before: { col, row },
           after: { col: newCol, row: newRow },
@@ -108,6 +110,7 @@ export const checkRookWin = (ChessBlacks: Array<Cell>) => {
           checkMove_KnightIsWin(chessBlack.col, chessBlack.row) &&
           checkMove_BishopIsWin(chessBlack.col, chessBlack.row) &&
           checkMove_KingIsWin(chessBlack.col, chessBlack.row) &&
+          checkMove_QueenIsWin(chessBlack.col, chessBlack.row, '') &&
           rookMoveIsInvalid({
             before: { col: rook.col, row: rook.row },
             after: { col: chessBlack.col, row: chessBlack.row },

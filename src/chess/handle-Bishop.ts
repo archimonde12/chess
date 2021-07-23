@@ -3,6 +3,7 @@ import {
   checkMove_BishopIsWin,
   checkMove_KingIsWin,
   checkMove_KnightIsWin,
+  checkMove_QueenIsWin,
   checkMove_RookIsWin,
   getChessMan,
   iconChessWhites,
@@ -18,8 +19,8 @@ export const checkBishopMoveIsInvalid = (location: locationMove): boolean => {
       return false;
     }
   }
-  var rangeCol = before.col > after.col ? before.col - after.col : after.col - before.col;
-  var rangeRow = before.row > after.row ? before.row - after.row : after.row - before.row;
+  const rangeCol = before.col > after.col ? before.col - after.col : after.col - before.col;
+  const rangeRow = before.row > after.row ? before.row - after.row : after.row - before.row;
   if(rangeCol !== rangeRow) {
     return false;
   }
@@ -94,6 +95,7 @@ export const checkBishopWin = (ChessBlacks: Array<Cell>) => {
             checkMove_KnightIsWin(chessBlack.col, chessBlack.row) &&
             checkMove_BishopIsWin(chessBlack.col, chessBlack.row) &&
             checkMove_KingIsWin(chessBlack.col, chessBlack.row) &&
+            checkMove_QueenIsWin(chessBlack.col, chessBlack.row, '') &&
             checkBishopMoveIsInvalid({
               before: { col: bishop.col, row: bishop.row },
               after: { col: chessBlack.col, row: chessBlack.row },
@@ -115,6 +117,7 @@ export const checkBishopWin = (ChessBlacks: Array<Cell>) => {
             checkMove_KnightIsWin(chessBlack.col, chessBlack.row) &&
             checkMove_BishopIsWin(chessBlack.col, chessBlack.row) &&
             checkMove_KingIsWin(chessBlack.col, chessBlack.row) &&
+            checkMove_QueenIsWin(chessBlack.col, chessBlack.row, '') &&
             checkBishopMoveIsInvalid({
               before: { col: bishop.col, row: bishop.row },
               after: { col: chessBlack.col, row: chessBlack.row },
@@ -157,6 +160,7 @@ export const bishopMove = (col: number, row: number) => {
       checkMove_RookIsWin(newCol, newRow, '') &&
       checkMove_KnightIsWin(newCol, newRow) &&
       checkMove_BishopIsWin(newCol, newRow) &&
+      checkMove_QueenIsWin(newCol, newRow, '') &&
       checkMove_KingIsWin(newCol, newRow)
     ) {
       isCheck = true;

@@ -4,6 +4,7 @@ import {
   checkMove_BishopIsWin,
   checkMove_KingIsWin,
   checkMove_KnightIsWin,
+  checkMove_QueenIsWin,
   checkMove_RookIsWin,
   getChessMan,
   iconChessWhites,
@@ -31,6 +32,7 @@ export const checkKnightWin = (ChessBlacks: Array<Cell>) => {
             checkMove_RookIsWin(chessBlack.col, chessBlack.row, '') &&
             checkMove_KnightIsWin(chessBlack.col, chessBlack.row) &&
             checkMove_BishopIsWin(chessBlack.col, chessBlack.row) &&
+            checkMove_QueenIsWin(chessBlack.col, chessBlack.row, '') &&
             checkMove_KingIsWin(chessBlack.col, chessBlack.row)
           ) {
             return {
@@ -47,7 +49,7 @@ export const checkKnightWin = (ChessBlacks: Array<Cell>) => {
   }
   return false;
 };
-const checkKnightMoveIsInvalid = (location: locationMove): boolean => {
+export const checkKnightMoveIsInvalid = (location: locationMove): boolean => {
   const { after } = location;
   const allys = getChessMan(iconChessWhites).concat();
   for (let ally of allys) {
@@ -81,6 +83,7 @@ export const knightMove = (col: number, row: number) => {
       if(checkMove_RookIsWin(newCol, newRow, '') &&
       checkMove_KnightIsWin(newCol, newRow) &&
       checkMove_BishopIsWin(newCol, newRow) &&
+      checkMove_QueenIsWin(newCol, newRow, '') &&
       checkMove_KingIsWin(newCol, newRow)){
         isCheck = true;
         return { newCol, newRow };
