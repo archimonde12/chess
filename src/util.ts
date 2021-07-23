@@ -41,16 +41,21 @@ export const initBoard = () => {
     {},
     {
       init:
-        [
-          { col: 4, row: 7, value: "♚" },
-          { col: 7, row: 7, value: "♜" },
-          { col: 6, row: 7, value: "♞" },
-          { col: 5, row: 7, value: "♝" },
-          { col: 3, row: 0, value: "♔" },
-          { col: 0, row: 0, value: "♖" },
-          { col: 1, row: 0, value: "♘" },
-          { col: 2, row: 0, value: "♗" }
-        ]
+      [
+        // White 
+        { col: 7, row: 7, value: "♖" },
+        { col: 6, row: 7, value: "♘" },
+        { col: 5, row: 7, value: "♗" },
+        { col: 4, row: 7, value: "♔" },
+        { col: 3, row: 7, value: "♕" },
+        // Dark
+        { col: 0, row: 0, value: "♜" },
+        { col: 1, row: 0, value: "♞" },
+        { col: 2, row: 0, value: "♝" },
+        { col: 3, row: 0, value: "♛" },
+        { col: 4, row: 0, value: "♚" },
+        
+      ]
     },
     {},
     {})

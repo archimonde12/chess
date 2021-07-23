@@ -5,19 +5,22 @@ import { runCastle } from './castle';
 import { runHorse } from './horse';
 import { runKing } from './king';
 import { runDark } from './runDark';
+import { runQueen } from './queen';
 
-export var white = {
-    Castle: { col: 0, row: 0, del: 0, value: '♖' },
-    Horse: { col: 1, row: 0, del: 0, value: '♘' },
-    Bishop: { col: 2, row: 0, del: 0, value: '♗' },
-    King: { col: 3, row: 0, del: 0, value: '♔' },
+var white = {
+    Castle: { col: 7, row: 7, del: 0, value: '♖' },
+    Horse: { col: 6, row: 7, del: 0, value: '♘' },
+    Bishop: { col: 5, row: 7, del: 0, value: '♗' },
+    King: { col: 4, row: 7, del: 0, value: '♔' },
+    Queen: { col: 3, row: 7, del: 0, value: '♕' }
 }
 
-export var dark = {
-    Castle: { col: 7, row: 7, del: 0, value: '♜' },
-    Horse: { col: 6, row: 7, del: 0, value: '♞' },
-    Bishop: { col: 5, row: 7, del: 0, value: '♝' },
-    King: { col: 4, row: 7, del: 0, value: '♚' },
+var dark = {
+    Castle: { col: 0, row: 0, del: 0, value: '♜' },
+    Horse: { col: 1, row: 0, del: 0, value: '♞' },
+    Bishop: { col: 2, row: 0, del: 0, value: '♝' },
+    Queen: { col: 3, row: 0, del: 0, value: '♛' },
+    King: { col: 4, row: 7, del: 0, value: '♚' }
 }
 
 var turn = 0
@@ -35,15 +38,21 @@ export function runWhite() {
     4 con đông minh an toàn => Random nước đi
 
     */
+   // Dark
 
     const kingD = board.find(el => el.value === '♚') as Cell
     const bishopD = board.find(el => el.value === '♝') as Cell
     const horseD = board.find(el => el.value === '♞') as Cell
     const castleD = board.find(el => el.value === '♜') as Cell
+    const QueenD = board.find(el => el.value === '♛') as Cell
+
+    // White
+
     const kingW = board.find(el => el.value === '♔') as Cell
     const castleW = board.find(el => el.value === '♖') as Cell
     const bishopW = board.find(el => el.value === '♗') as Cell
     const horseW = board.find(el => el.value === '♘') as Cell
+    const QueenW = board.find(el => el.value === '♕') as Cell
 
     if (kingD) {
         dark.King.row = kingD.row
@@ -77,6 +86,13 @@ export function runWhite() {
         dark.Castle.del = 1
     }
 
+    if (QueenD) {
+        dark.Queen.row = QueenD.row
+        dark.Queen.col = QueenD.col
+        dark.Queen.del = 0
+    } else {
+        dark.Queen.del = 1
+    }
 
     if (kingW) {
         white.King.row = kingW.row
@@ -110,18 +126,29 @@ export function runWhite() {
         white.Castle.del = 1
     }
 
+    if (QueenW) {
+        white.Queen.row = QueenW.row
+        white.Queen.col = QueenW.col
+        white.Queen.del = 0
+    } else {
+        white.Queen.del = 1
+    }
+
     const _runDark = runDark(white, dark)
 
-    // let ally = white
-    // let oppo = dark
+    console.log('White', white)
 
-    
+    console.log('Dark', dark)
 
     console.log('Quân cờ đang gặp nguy hiểm', _runDark)
 
     if (_runDark === 'King') {
         const { col, row } = runKing(white, dark) as ChessLocation
         result.push({ col: col, row: row, value: '♔' })
+    }
+    if (_runDark === 'Queen') {
+        const { col, row } = runQueen(dark, white) as ChessLocation
+        result.push({ col: col, row: row, value: '♛' })
     }
     else if (_runDark === 'Castle') {
         const { col, row } = runCastle(white, dark) as ChessLocation
@@ -167,18 +194,26 @@ export function runWhite() {
                 result.push({ col: col, row: row, value: '♖' })
                 break;
             }
+            case 'queen': {
+                const { col, row } = runQueen(dark, white) as ChessLocation
+                result.push({ col: col, row: row, value: '♕' })
+                break;
+            }
         }
     }
 
-    console.log("white", white)
-    console.log("dark", dark)
-    console.log("ket qua", result)
+    console.log('white', white)
+    console.log('dark', dark)
+    console.log('ket qua', result)
 
     // Tìm quân cờ có thể ăn đối thủ => Ăn
 
     for (let index = 0; index < result.length; index++) {
 
         if (result[index].col === dark.King.col && result[index].row == dark.King.row) {
+            return _result(result[index].col, result[index].row, result[index].value)
+        }
+        else if (result[index].col === dark.Queen.col && result[index].row === dark.Queen.row) {
             return _result(result[index].col, result[index].row, result[index].value)
         }
         else if (result[index].col === dark.Castle.col && result[index].row === dark.Castle.row) {
